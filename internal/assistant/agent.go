@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"sort"
 	"strings"
@@ -260,11 +261,15 @@ func (a *Agent) aiReply(message string) string {
 	if a.eleven != nil && a.eleven.Enabled() {
 		if text, err := a.eleven.Chat(ctx, indianSystemPrompt(a.cfg.Station), message); err == nil && strings.TrimSpace(text) != "" {
 			return strings.TrimSpace(text)
+		} else if err != nil {
+			log.Printf("elevenlabs agent turn failed: %v", err)
 		}
 	}
 	if a.ai != nil && a.ai.Enabled() {
 		if text, err := a.ai.Chat(ctx, indianSystemPrompt(a.cfg.Station), message); err == nil {
 			return strings.TrimSpace(text)
+		} else {
+			log.Printf("sarvam chat turn failed: %v", err)
 		}
 	}
 	return ""

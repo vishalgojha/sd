@@ -65,7 +65,10 @@ func (c *Client) Disconnect() error {
 	// Nango requires the provider config key when deleting a connection.
 	deletePath := "/connections/" + url.PathEscape(id) + "?provider_config_key=" + url.QueryEscape(c.cfg.NangoIntegration)
 	if _, err := c.nangoRequest(http.MethodDelete, deletePath, nil, nil); err != nil {
-		return err
+		// Nango is already disconnected; make the operation idempotent.
+		if !strings.Contains(strings.ToLower(err.Error()), "unknown_connection") {
+			return err
+		}
 	}
 	c.connection = nil
 	return nil
@@ -142,17 +145,8 @@ func (c *Client) ConnectLink() (string, error) {
 
 // RefreshConnection resolves the stored or first Gmail connection for the user.
 func (c *Client) RefreshConnection() (string, error) {
-	if id := strings.TrimSpace(c.cfg.NangoConnectionID); id != "" {
-		c.connection = &Connection{
-			ConnectionID: id,
-			Provider:     c.cfg.NangoIntegration,
-			UserID:       c.cfg.NangoUserID,
-			UpdatedAt:    time.Now().UTC().Format(time.RFC3339),
-		}
-		return id, nil
-	}
 	if c.connection != nil && c.connection.ConnectionID != "" {
-		return c.connection.ConnectionID, nil
+		// Do not trust a stale configured ID forever; the list below validates it.
 	}
 	if c.cfg.NangoIntegration == "" {
 		return "", fmt.Errorf("Nango integration not configured")
@@ -172,11 +166,23 @@ func (c *Client) RefreshConnection() (string, error) {
 			Connection_id       string `json:"connection_id"`
 			ConnectionId        string `json:"connectionId"`
 		} `json:"connections"`
+		Data struct {
+			Connections []struct {
+				Provider_config_key string `json:"provider_config_key"`
+				ProviderConfigKey   string `json:"providerConfigKey"`
+				Connection_id       string `json:"connection_id"`
+				ConnectionId        string `json:"connectionId"`
+			} `json:"connections"`
+		} `json:"data"`
 	}
 	if err := json.Unmarshal(body, &parsed); err != nil {
 		return "", err
 	}
-	for _, conn := range parsed.Connections {
+	connections := parsed.Connections
+	if len(connections) == 0 {
+		connections = parsed.Data.Connections
+	}
+	for _, conn := range connections {
 		provider := firstNonEmpty(conn.Provider_config_key, conn.ProviderConfigKey)
 		id := firstNonEmpty(conn.Connection_id, conn.ConnectionId)
 		if provider == c.cfg.NangoIntegration && id != "" {

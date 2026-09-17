@@ -62,7 +62,9 @@ func (c *Client) Disconnect() error {
 		}
 	}
 	id := c.connection.ConnectionID
-	if _, err := c.nangoRequest(http.MethodDelete, "/connections/"+url.PathEscape(id), nil, nil); err != nil {
+	// Nango requires the provider config key when deleting a connection.
+	deletePath := "/connections/" + url.PathEscape(id) + "?provider_config_key=" + url.QueryEscape(c.cfg.NangoIntegration)
+	if _, err := c.nangoRequest(http.MethodDelete, deletePath, nil, nil); err != nil {
 		return err
 	}
 	c.connection = nil

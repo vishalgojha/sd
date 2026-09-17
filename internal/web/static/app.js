@@ -108,7 +108,22 @@ function appendMsg(role, text) {
   el.appendChild(t);
   thread.appendChild(el);
   thread.scrollTop = thread.scrollHeight;
+  saveChat();
   return el;
+}
+
+function saveChat() {
+  var rows = Array.from(document.querySelectorAll("#thread .msg")).map(function(el) {
+    var t = el.querySelector(".t");
+    return { role: el.classList.contains("user") ? "user" : "bot", text: (el.firstChild && el.firstChild.nodeValue) || el.textContent.replace(t ? t.textContent : "", "").trim(), time: t ? t.textContent : "" };
+  });
+  try { localStorage.setItem("sdchat_history", JSON.stringify(rows.slice(-100))); } catch (_) {}
+}
+
+function loadChat() {
+  var rows = [];
+  try { rows = JSON.parse(localStorage.getItem("sdchat_history") || "[]"); } catch (_) {}
+  rows.forEach(function(row) { appendMsg(row.role === "user" ? "user" : "bot", row.text || ""); });
 }
 
 function setupCommand() {
@@ -126,6 +141,7 @@ function setupCommand() {
       body: JSON.stringify({ message: msg })
     }).then(function(d) {
       pending.textContent = d.reply || "Done.";
+      var tm = document.createElement("span"); tm.className = "t"; tm.textContent = nowTime(); pending.appendChild(tm); saveChat();
       btn.disabled = false; btn.textContent = "SEND";
       refreshDashboard();
     }).catch(function(e) {
@@ -138,10 +154,19 @@ function setupCommand() {
 }
 
 function seedChat() {
-  if (!localStorage.getItem("sdchat_seeded")) {
+  if (!localStorage.getItem("sdchat_history")) {
     appendMsg("bot", "Hi, I'm Sheetal. Ask me to remind, note things, add to shopping, plan your day, play music, or check email.");
     localStorage.setItem("sdchat_seeded", "1");
   }
+}
+
+function setupNewChat() {
+  $("newChatBtn").addEventListener("click", function() {
+    $("thread").replaceChildren();
+    try { localStorage.removeItem("sdchat_history"); } catch (_) {}
+    appendMsg("bot", "New task started. What should we work on?");
+    $("cmdInput").focus();
+  });
 }
 
 /* ---------- Dashboard (tasks / plan / memory) ---------- */
@@ -210,6 +235,10 @@ function setupMusic() {
       refreshQueue();
     });
   });
+  $("queueClearBtn").addEventListener("click", function() {
+    if (!confirm("Clear the old Spotify queue?")) return;
+    api("/api/queue/clear", { method: "POST" }).then(refreshQueue);
+  });
   results.addEventListener("click", function(e) {
     var t = e.target.closest("[data-act]");
     if (!t || t.dataset.act !== "add") return;
@@ -276,6 +305,8 @@ refreshDashboard();
 refreshQueue();
 refreshServices();
 setupCommand();
+loadChat();
+setupNewChat();
 setupMusic();
 setupTasks();
 seedChat();

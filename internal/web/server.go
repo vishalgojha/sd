@@ -75,6 +75,7 @@ func (s *Server) routes() {
 	mux.HandleFunc("/api/queue", s.queue)
 	mux.HandleFunc("/api/queue/next", s.queueNext)
 	mux.HandleFunc("/api/queue/remove", s.queueRemove)
+	mux.HandleFunc("/api/queue/clear", s.queueClear)
 
 	mux.HandleFunc("/api/email/status", s.emailStatus)
 	mux.HandleFunc("/api/email/connect", s.emailConnect)
@@ -299,6 +300,13 @@ func (s *Server) queueRemove(w http.ResponseWriter, r *http.Request) {
 	}
 	_ = s.store.SaveQueue(q)
 	writeJSON(w, http.StatusOK, map[string]any{"ok": removed})
+}
+
+func (s *Server) queueClear(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost { writeJSON(w, http.StatusMethodNotAllowed, map[string]any{"error": "use POST"}); return }
+	if !s.requireAuth(w, r) { return }
+	if err := s.store.SaveQueue([]store.QueueItem{}); err != nil { writeJSON(w, http.StatusInternalServerError, map[string]any{"ok": false, "error": "could not clear queue"}); return }
+	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
 }
 
 // --- email --------------------------------------------------------------

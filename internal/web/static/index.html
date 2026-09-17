@@ -176,7 +176,7 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
     <!-- CHAT -->
     <section class="view" id="view-chat">
       <div class="eyebrow">COMMAND CONSOLE</div>
-      <h2 class="view-title">Chat</h2>
+      <div style="display:flex;align-items:center;gap:10px"><h2 class="view-title" style="flex:1">Chat</h2><button id="newChatBtn" class="btn ghost" type="button">NEW TASK</button></div>
       <p class="view-sub">The same brain that runs on WhatsApp. Type a command or just talk — <em>add milk to shopping</em>, <em>play dua lipa</em>, <em>what's my plan today?</em></p>
       <div class="card">
         <div class="thread" id="thread"></div>
@@ -222,6 +222,7 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
       <div class="card">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
           <h3 style="margin:0;font-size:13px;flex:1">Queue</h3>
+          <button id="queueClearBtn" class="btn ghost" type="button">CLEAR OLD QUEUE</button>
           <button id="queueNextBtn" class="btn ghost" type="button">NEXT</button>
         </div>
         <div id="musicQueue"><p class="empty">Queue is empty.</p></div>

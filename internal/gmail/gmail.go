@@ -140,6 +140,15 @@ func (c *Client) ConnectLink() (string, error) {
 
 // RefreshConnection resolves the stored or first Gmail connection for the user.
 func (c *Client) RefreshConnection() (string, error) {
+	if id := strings.TrimSpace(c.cfg.NangoConnectionID); id != "" {
+		c.connection = &Connection{
+			ConnectionID: id,
+			Provider:     c.cfg.NangoIntegration,
+			UserID:       c.cfg.NangoUserID,
+			UpdatedAt:    time.Now().UTC().Format(time.RFC3339),
+		}
+		return id, nil
+	}
 	if c.connection != nil && c.connection.ConnectionID != "" {
 		return c.connection.ConnectionID, nil
 	}

@@ -51,6 +51,7 @@ type Config struct {
 	NangoAPIBase     string
 	NangoIntegration string
 	NangoUserID      string
+	NangoConnectionID string
 
 	// Auth
 	AgentToken string // shared token for the manual web tool API
@@ -135,6 +136,7 @@ func Load() *Config {
 		NangoAPIBase:     env("NANGO_API_BASE", "https://api.nango.dev"),
 		NangoIntegration: env("NANGO_INTEGRATION_ID", "gmail"),
 		NangoUserID:      env("NANGO_USER_ID", "sheetal"),
+		NangoConnectionID: env("NANGO_CONNECTION_ID", ""),
 
 		AgentToken: env("SDSHEETAL_AGENT_TOKEN", ""),
 

@@ -239,10 +239,8 @@ func (s *Server) status(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{
 		"logged_in":      s.wa.LoggedIn(),
 		"connected":      s.wa.Connected(),
-		"phone":          s.wa.PhoneNumber(),
 		"pairing":        s.wa.QRPairing(),
 		"last_error":     s.wa.LastError(),
-		"owner":          s.cfg.Owner,
 		"station":        s.cfg.Station,
 		"voice_replies":  s.cfg.VoiceReplies,
 		"voice_ready":    s.wa.VoiceReplyEnabled(),

@@ -83,7 +83,9 @@ func (c *Client) Connected() bool {
 func (c *Client) SendTextToOwner(text string) error {
 	client := c.raw()
 	if client == nil || !client.IsConnected() || client.Store.ID == nil { return fmt.Errorf("WhatsApp is offline") }
-	to := *client.Store.ID
+	// Whatsmeow may store the account as a device/LID JID. Sending to the
+	// normalized user JID avoids the "no device part" rejection.
+	to := client.Store.ID.ToNonAD()
 	resp, err := client.SendMessage(context.Background(), to, textMessage(text))
 	if err == nil { c.rememberSent(resp.ID) }
 	return err

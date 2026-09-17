@@ -272,7 +272,13 @@ func (a *Agent) aiReply(message string) string {
 		for _, entry := range m.Conversations[start:] {
 			if strings.TrimSpace(entry.Text) != "" { recent = append(recent, entry.Text) }
 		}
-		if len(recent) > 0 { prompt += "\nRecent conversation (use only as context):\n" + strings.Join(recent, "\n") }
+		if len(recent) > 0 {
+			contextText := strings.Join(recent, "\n")
+			// Keep hosted-agent prompts below websocket/provider limits while
+			// retaining the most recent continuity window.
+			if len(contextText) > 6000 { contextText = contextText[len(contextText)-6000:] }
+			prompt += "\nRecent conversation (use only as context):\n" + contextText
+		}
 		if len(m.Preferences) == 0 && len(m.Conversations) <= 2 { prompt += "\nThis is Sheetal’s first interaction. Give a warm time-aware greeting, then ask at most three concise onboarding questions: preferred reminder channel (WhatsApp, email, or screen), preferred language, and one useful preference to remember. Do not assume parents or family members." }
 		if len(m.KnowledgeGraph.Nodes) > 0 {
 			var facts []string

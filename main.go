@@ -19,6 +19,7 @@ import (
 
 	"github.com/vishalgojha/sdsheetal/internal/assistant"
 	"github.com/vishalgojha/sdsheetal/internal/config"
+	"github.com/vishalgojha/sdsheetal/internal/eleven"
 	"github.com/vishalgojha/sdsheetal/internal/gmail"
 	"github.com/vishalgojha/sdsheetal/internal/sarvam"
 	"github.com/vishalgojha/sdsheetal/internal/spotify"
@@ -39,8 +40,9 @@ func main() {
 	sp := spotify.New(cfg)
 	voice := tts.New(cfg)
 	sv := sarvam.New(cfg)
+	el := eleven.New(cfg)
 	gm := gmail.New(cfg)
-	agent := assistant.New(cfg, st, sp, gm, sv)
+	agent := assistant.New(cfg, st, sp, gm, sv, el)
 
 	wa := whatsapp.New(cfg, st, agent, voice, sv)
 	if err := wa.Start(); err != nil {

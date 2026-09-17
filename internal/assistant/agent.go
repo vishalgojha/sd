@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/vishalgojha/sdsheetal/internal/config"
+	"github.com/vishalgojha/sdsheetal/internal/eleven"
 	"github.com/vishalgojha/sdsheetal/internal/gmail"
 	"github.com/vishalgojha/sdsheetal/internal/sarvam"
 	"github.com/vishalgojha/sdsheetal/internal/spotify"
@@ -33,15 +34,16 @@ type Agent struct {
 	spotify  *spotify.Client
 	gmail    *gmail.Client
 	ai       *sarvam.Client
+	eleven   *eleven.Client
 	location *time.Location
 }
 
-func New(cfg *config.Config, st *store.Store, sp *spotify.Client, gm *gmail.Client, ai *sarvam.Client) *Agent {
+func New(cfg *config.Config, st *store.Store, sp *spotify.Client, gm *gmail.Client, ai *sarvam.Client, el *eleven.Client) *Agent {
 	loc, err := time.LoadLocation(cfg.TimeZone)
 	if err != nil {
 		loc = time.FixedZone("IST", 5*3600+30*60)
 	}
-	return &Agent{cfg: cfg, store: st, spotify: sp, gmail: gm, ai: ai, location: loc}
+	return &Agent{cfg: cfg, store: st, spotify: sp, gmail: gm, ai: ai, eleven: el, location: loc}
 }
 
 func (a *Agent) now() time.Time { return time.Now().In(a.location) }
@@ -76,11 +78,11 @@ func (a *Agent) Dashboard() map[string]any {
 	}
 	m := a.store.Memory()
 	return map[string]any{
-		"now_ist": a.now().Format(time.RFC3339),
-		"tasks":   taskedJSON(tasks),
-		"notes":   notes,
+		"now_ist":  a.now().Format(time.RFC3339),
+		"tasks":    taskedJSON(tasks),
+		"notes":    notes,
 		"shopping": shopping,
-		"plans":   plans,
+		"plans":    plans,
 		"memory": map[string]any{
 			"favorite_tracks": store.MemoryTop(m.Plays, 6),
 			"skipped_tracks":  store.MemoryTop(m.Skips, 6),
@@ -157,15 +159,15 @@ func (a *Agent) Run(message string) Reply {
 
 	a.store.RecordMemory("conversation", "", raw)
 
-	if matchesAny(text, []string{"help", "commands", "what can you", "how do you work", "show commands", "menu", "मदद"}){
+	if matchesAny(text, []string{"help", "commands", "what can you", "how do you work", "show commands", "menu", "मदद"}) {
 		return a.Help()
 	}
 
-	if matchesAny(text, []string{"time", "समय", "कितने बजे", "बज रहे", "date", "कौन सा दिन"}){
+	if matchesAny(text, []string{"time", "समय", "कितने बजे", "बज रहे", "date", "कौन सा दिन"}) {
 		return a.timeReply()
 	}
 
-	if matchesAny(text, []string{"hi", "hello", "hey", "namaste", "नमस्ते", "good morning", "good evening", "good afternoon", "gm", "hii", "hello sheetal"}){
+	if matchesAny(text, []string{"hi", "hello", "hey", "namaste", "नमस्ते", "good morning", "good evening", "good afternoon", "gm", "hii", "hello sheetal"}) {
 		return a.greeting(raw)
 	}
 
@@ -245,16 +247,19 @@ func indianSystemPrompt(name string) string {
 }
 
 func (a *Agent) aiReply(message string) string {
-	if a.ai == nil || !a.ai.Enabled() {
-		return ""
-	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	text, err := a.ai.Chat(ctx, indianSystemPrompt(a.cfg.Station), message)
-	if err != nil {
-		return ""
+	if a.eleven != nil && a.eleven.Enabled() {
+		if text, err := a.eleven.Chat(ctx, indianSystemPrompt(a.cfg.Station), message); err == nil && strings.TrimSpace(text) != "" {
+			return strings.TrimSpace(text)
+		}
 	}
-	return strings.TrimSpace(text)
+	if a.ai != nil && a.ai.Enabled() {
+		if text, err := a.ai.Chat(ctx, indianSystemPrompt(a.cfg.Station), message); err == nil {
+			return strings.TrimSpace(text)
+		}
+	}
+	return ""
 }
 
 // --- tasks -----------------------------------------------------------------
@@ -766,16 +771,16 @@ func (a *Agent) handlePreferences(raw, text string) (Reply, bool) {
 
 // MusicState mirrors the browser-player state file written by the web UI.
 type MusicState struct {
-	ClientID  string `json:"client_id"`
-	Device    string `json:"device"`
-	TrackURI  string `json:"track_uri"`
-	Title     string `json:"title"`
-	Artist    string `json:"artist"`
-	Art       string `json:"art"`
-	PositionMS int64 `json:"position_ms"`
-	DurationMS int64 `json:"duration_ms"`
-	Paused    bool   `json:"paused"`
-	UpdatedAt string `json:"updated_at"`
+	ClientID   string `json:"client_id"`
+	Device     string `json:"device"`
+	TrackURI   string `json:"track_uri"`
+	Title      string `json:"title"`
+	Artist     string `json:"artist"`
+	Art        string `json:"art"`
+	PositionMS int64  `json:"position_ms"`
+	DurationMS int64  `json:"duration_ms"`
+	Paused     bool   `json:"paused"`
+	UpdatedAt  string `json:"updated_at"`
 }
 
 func (a *Agent) musicState() (MusicState, bool) {

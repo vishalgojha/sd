@@ -31,9 +31,10 @@ type Config struct {
 	SpotifyTimeoutS     int
 
 	// ElevenLabs
-	ElevenLabsAPIKey string
-	ElevenLabsVoice  string
-	ElevenLabsModel  string
+	ElevenLabsAPIKey  string
+	ElevenLabsVoice   string
+	ElevenLabsModel   string
+	ElevenLabsAgentID string
 
 	// Sarvam AI (Indic language TTS/STT)
 	SarvamAPIKey     string
@@ -46,10 +47,10 @@ type Config struct {
 	SarvamChatModel  string
 
 	// Nango / Gmail
-	NangoSecretKey    string
-	NangoAPIBase      string
-	NangoIntegration  string
-	NangoUserID       string
+	NangoSecretKey   string
+	NangoAPIBase     string
+	NangoIntegration string
+	NangoUserID      string
 
 	// Auth
 	AgentToken string // shared token for the manual web tool API
@@ -116,9 +117,10 @@ func Load() *Config {
 		SpotifyPlaylistID:   env("SPOTIFY_PLAYLIST_ID", "2JXK0KRt8pLkmUqIPPmmQQ"),
 		SpotifyTimeoutS:     envInt("SDSHEETAL_SPOTIFY_TIMEOUT", 6),
 
-		ElevenLabsAPIKey: env("ELEVENLABS_API_KEY", ""),
-		ElevenLabsVoice:  env("ELEVENLABS_VOICE_ID", "7qBNUtXRGP0jPi0H4r8k"),
-		ElevenLabsModel:  env("ELEVENLABS_MODEL_ID", "eleven_multilingual_v2"),
+		ElevenLabsAPIKey:  env("ELEVENLABS_API_KEY", ""),
+		ElevenLabsVoice:   env("ELEVENLABS_VOICE_ID", "7qBNUtXRGP0jPi0H4r8k"),
+		ElevenLabsModel:   env("ELEVENLABS_MODEL_ID", "eleven_multilingual_v2"),
+		ElevenLabsAgentID: env("ELEVENLABS_AGENT_ID", ""),
 
 		SarvamAPIKey:     env("SARVAM_API_KEY", ""),
 		SarvamTTSSpeaker: env("SARVAM_TTS_SPEAKER", "shubh"),

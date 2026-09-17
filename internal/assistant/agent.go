@@ -159,6 +159,14 @@ func (a *Agent) Run(message string) Reply {
 
 	a.store.RecordMemory("conversation", "", raw)
 
+	// Let the configured conversational agent decide what this turn means.
+	// The local handlers below are a resilience layer for outages and for
+	// deployments whose hosted agent has not yet been given the tool schema;
+	// they are deliberately not the primary experience.
+	if aiText := a.aiReply(raw); aiText != "" {
+		return Reply{Text: aiText, Tool: "ai_chat"}
+	}
+
 	if matchesAny(text, []string{"help", "commands", "what can you", "how do you work", "show commands", "menu", "मदद"}) {
 		return a.Help()
 	}
@@ -243,7 +251,7 @@ func (a *Agent) greeting(raw string) Reply {
 }
 
 func indianSystemPrompt(_ string) string {
-	return "You are a warm, practical personal assistant for an Indian household. Reply naturally in the user's language (English, Hindi, or Hinglish). Use India context, IST, INR, and concise WhatsApp-sized replies. Do not claim an action happened unless a tool confirms it. Be useful and human, not robotic. The app may be named after a person; do not pretend to be that person."
+	return "You are a warm, practical personal assistant for an Indian household. Reply naturally in English, Hindi, or Hinglish, using IST and INR when relevant. You are an agent, not a fixed command parser: understand intent, ask a short clarification when needed, and use your configured tools for real actions. Use assistant_action for tasks, notes, shopping, plans, preferences, Gmail, and Spotify. Use open_external_app or device/browser tools for Chrome, Spotify Web, YouTube Music, and microphone checks. Never claim an action happened unless its tool confirms success. Keep WhatsApp replies concise and human. The app may be named after a person; do not pretend to be that person."
 }
 
 func (a *Agent) aiReply(message string) string {

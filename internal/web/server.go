@@ -66,6 +66,13 @@ func (s *Server) routes() {
 	mux.HandleFunc("/downloads/SheetalBridge.exe", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "https://github.com/vishalgojha/sd/raw/main/dist/AgentV.exe", http.StatusFound)
 	})
+	mux.HandleFunc("/downloads/", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/downloads/" {
+			http.NotFound(w, r)
+			return
+		}
+		serveStatic(w, r, sub, "downloads.html", "text/html; charset=utf-8")
+	})
 	mux.HandleFunc("/downloads/AgentV.exe", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "https://github.com/vishalgojha/sd/raw/main/dist/AgentV.exe", http.StatusFound)
 	})

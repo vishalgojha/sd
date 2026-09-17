@@ -43,6 +43,53 @@ func New(cfg *config.Config) *Client {
 // Enabled reports whether an API key was configured.
 func (c *Client) Enabled() bool { return c.apiKey != "" }
 
+// Chat sends a text conversation to Sarvam's Indian-language chat model.
+func (c *Client) Chat(ctx context.Context, system, user string) (string, error) {
+	if !c.Enabled() {
+		return "", fmt.Errorf("Sarvam not configured")
+	}
+	messages := []map[string]string{}
+	if strings.TrimSpace(system) != "" {
+		messages = append(messages, map[string]string{"role": "system", "content": system})
+	}
+	messages = append(messages, map[string]string{"role": "user", "content": user})
+	body, err := json.Marshal(map[string]any{"model": c.cfg.SarvamChatModel, "messages": messages, "temperature": 0.7, "max_tokens": 300})
+	if err != nil {
+		return "", err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.base+"/v1/chat/completions", bytes.NewReader(body))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("api-subscription-key", c.apiKey)
+	req.Header.Set("Authorization", "Bearer "+c.apiKey)
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	raw, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return "", fmt.Errorf("sarvam chat %s: %s", resp.Status, truncate(string(raw), 180))
+	}
+	var out struct {
+		Choices []struct {
+			Message struct { Content string `json:"content"` } `json:"message"`
+		} `json:"choices"`
+	}
+	if err := json.Unmarshal(raw, &out); err != nil {
+		return "", fmt.Errorf("sarvam chat: bad response: %w", err)
+	}
+	if len(out.Choices) == 0 {
+		return "", fmt.Errorf("sarvam chat: empty response")
+	}
+	return strings.TrimSpace(out.Choices[0].Message.Content), nil
+}
+
 // Speak renders text to audio bytes (MP3 when the request asks for it).
 func (c *Client) Speak(text string) ([]byte, error) {
 	if !c.Enabled() {

@@ -5,6 +5,7 @@
 package assistant
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/vishalgojha/sdsheetal/internal/config"
 	"github.com/vishalgojha/sdsheetal/internal/gmail"
+	"github.com/vishalgojha/sdsheetal/internal/sarvam"
 	"github.com/vishalgojha/sdsheetal/internal/spotify"
 	"github.com/vishalgojha/sdsheetal/internal/store"
 )
@@ -30,15 +32,16 @@ type Agent struct {
 	store    *store.Store
 	spotify  *spotify.Client
 	gmail    *gmail.Client
+	ai       *sarvam.Client
 	location *time.Location
 }
 
-func New(cfg *config.Config, st *store.Store, sp *spotify.Client, gm *gmail.Client) *Agent {
+func New(cfg *config.Config, st *store.Store, sp *spotify.Client, gm *gmail.Client, ai *sarvam.Client) *Agent {
 	loc, err := time.LoadLocation(cfg.TimeZone)
 	if err != nil {
 		loc = time.FixedZone("IST", 5*3600+30*60)
 	}
-	return &Agent{cfg: cfg, store: st, spotify: sp, gmail: gm, location: loc}
+	return &Agent{cfg: cfg, store: st, spotify: sp, gmail: gm, ai: ai, location: loc}
 }
 
 func (a *Agent) now() time.Time { return time.Now().In(a.location) }
@@ -188,6 +191,9 @@ func (a *Agent) Run(message string) Reply {
 		return reply
 	}
 
+	if aiText := a.aiReply(raw); aiText != "" {
+		return Reply{Text: aiText, Tool: "ai_chat"}
+	}
 	return Reply{
 		Text: `I understood that only loosely. Try one of these:
 • "remind me to buy a gift for Charvi"
@@ -216,6 +222,9 @@ func (a *Agent) timeReply() Reply {
 }
 
 func (a *Agent) greeting(raw string) Reply {
+	if text := a.aiReply(raw); text != "" {
+		return Reply{Text: text, Tool: "ai_chat"}
+	}
 	name := strings.TrimSpace(raw)
 	name = strings.TrimLeft(name, "hH ")
 	hour := a.now().Hour()
@@ -229,6 +238,23 @@ func (a *Agent) greeting(raw string) Reply {
 		Text: fmt.Sprintf("%s! I'm here. Ask me to plan, remember, find a song, check tasks or shopping, or read your email.", strings.Title(period)),
 		Tool: "greet",
 	}
+}
+
+func indianSystemPrompt(name string) string {
+	return fmt.Sprintf("You are %s, a warm practical personal assistant for an Indian household. Reply naturally in the user's language (English, Hindi, or Hinglish). Use India context, IST, INR, and concise WhatsApp-sized replies. Do not claim an action happened unless a tool confirms it. Be useful and human, not robotic.", name)
+}
+
+func (a *Agent) aiReply(message string) string {
+	if a.ai == nil || !a.ai.Enabled() {
+		return ""
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	text, err := a.ai.Chat(ctx, indianSystemPrompt(a.cfg.Station), message)
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(text)
 }
 
 // --- tasks -----------------------------------------------------------------

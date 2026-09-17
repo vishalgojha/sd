@@ -40,7 +40,7 @@ func main() {
 	voice := tts.New(cfg)
 	sv := sarvam.New(cfg)
 	gm := gmail.New(cfg)
-	agent := assistant.New(cfg, st, sp, gm)
+	agent := assistant.New(cfg, st, sp, gm, sv)
 
 	wa := whatsapp.New(cfg, st, agent, voice, sv)
 	if err := wa.Start(); err != nil {

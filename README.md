@@ -30,6 +30,7 @@ Every setting comes from environment variables — see `.env.example`. Key ones:
 | `SARVAM_API_KEY` | Sarvam AI key — enables voice-note transcription (SPT/STT) and Indic TTS voice replies when set |
 | `SARVAM_TTS_SPEAKER` / `SARVAM_TTS_LANG` / `SARVAM_TTS_MODEL` | TTS speaker (`shubh`), language (`hi-IN`), model (`bulbul:v3`) |
 | `SARVAM_STT_MODEL` / `SARVAM_STT_MODE` / `SARVAM_STT_LANG` | transcription model (`saaras:v3`), mode (`transcribe`, `translate`, `verbatim`, `translit`, `codemix`), language (`unknown` = auto-detect) |
+| `SARVAM_CHAT_MODEL` | reasoning/chat model (`sarvam-105b-conversations` by default) |
 | `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET` | enables play-queue + search from WhatsApp |
 | `NANGO_SECRET_KEY` | enables Gmail read (`search email`, `check inbox`) |
 | `SDSHEETAL_AGENT_TOKEN` | shared secret required by write endpoints on the web panel/API |

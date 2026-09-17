@@ -43,6 +43,7 @@ type Config struct {
 	SarvamSTTModel   string
 	SarvamSTTMode    string
 	SarvamSTTLang    string
+	SarvamChatModel  string
 
 	// Nango / Gmail
 	NangoSecretKey    string
@@ -126,6 +127,7 @@ func Load() *Config {
 		SarvamSTTModel:   env("SARVAM_STT_MODEL", "saaras:v3"),
 		SarvamSTTMode:    env("SARVAM_STT_MODE", "transcribe"),
 		SarvamSTTLang:    env("SARVAM_STT_LANG", "unknown"),
+		SarvamChatModel:  env("SARVAM_CHAT_MODEL", "sarvam-105b-conversations"),
 
 		NangoSecretKey:   env("NANGO_SECRET_KEY", ""),
 		NangoAPIBase:     env("NANGO_API_BASE", "https://api.nango.dev"),

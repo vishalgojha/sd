@@ -89,7 +89,10 @@ func (s *Server) routes() {
 		http.Redirect(w, r, "https://github.com/vishalgojha/sd/raw/main/installer/windows/Setup-AgentV.ps1", http.StatusFound)
 	})
 	mux.HandleFunc("/downloads/install-sheetal-bridge.sh", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "https://github.com/vishalgojha/sd/raw/main/installer/linux/install-sheetal-bridge.sh", http.StatusFound)
+		http.Redirect(w, r, "https://github.com/vishalgojha/sd/raw/main/installer/linux/install-agent-v.sh", http.StatusFound)
+	})
+	mux.HandleFunc("/downloads/install-agent-v.sh", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "https://github.com/vishalgojha/sd/raw/main/installer/linux/install-agent-v.sh", http.StatusFound)
 	})
 
 	// WhatsApp pairing / status

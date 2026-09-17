@@ -33,11 +33,11 @@ type settings struct {
 func configFile() string {
 	if runtime.GOOS == "windows" {
 		if d := os.Getenv("APPDATA"); d != "" {
-			return filepath.Join(d, "SheetalBridge", "config.json")
+			return filepath.Join(d, "AgentV", "config.json")
 		}
 	}
 	if d, err := os.UserConfigDir(); err == nil {
-		return filepath.Join(d, "sheetal-bridge", "config.json")
+		return filepath.Join(d, "agent-v", "config.json")
 	}
 	return ""
 }

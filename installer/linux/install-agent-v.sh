@@ -14,7 +14,7 @@ printf '{"server":"%s","token":"%s","device":"linux-laptop"}\n' "$SERVER" "$TOKE
 chmod 600 "$BASE/config.json"
 cat > "$HOME/.config/systemd/user/agent-v.service" <<EOF
 [Unit]
-Description=Agent V local browser control
+Description=Agent V local computer control
 After=network-online.target
 
 [Service]

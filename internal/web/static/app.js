@@ -42,7 +42,6 @@ function refreshStatus() {
 
     pill($("pillLogin"), s.logged_in ? "WhatsApp linked" : "Not linked", s.logged_in ? "ok" : "warn");
     pill($("pillConn"), s.connected ? "Connected" : (s.pairing ? "Pairing" : "Disconnected"), s.connected ? "ok" : (s.pairing ? "warn" : "err"));
-    $("ownerInfo").textContent = s.owner ? "Private owner" : "no owner set (all chats allowed)";
 
     var vLabel = s.voice_ready
       ? "Voice: " + (s.voice_provider === "sarvam" ? "Sarvam" : s.voice_provider === "elevenlabs" ? "ElevenLabs" : "on")
@@ -82,7 +81,11 @@ function refreshStatus() {
     chips += chip("Voice notes (Sarvam STT)", s.stt_ready);
     chips += chip("Gmail", s.gmail);
     $("capChips").innerHTML = chips;
-    $("connectionActions").innerHTML = s.logged_in ? '<button class="link-btn" id="waDisconnect" type="button">Disconnect WhatsApp</button>' : '';
+    $("connectionActions").innerHTML = s.logged_in
+      ? (s.connected ? '<button class="link-btn" id="waDisconnect" type="button">Disconnect WhatsApp</button>' : '<button class="btn" id="waReconnect" type="button">Reconnect WhatsApp</button>')
+      : '<button class="btn" id="waReconnect" type="button">Connect WhatsApp</button>';
+    var reconnectBtn = $("waReconnect");
+    if (reconnectBtn) reconnectBtn.addEventListener("click", function(){ reconnectBtn.disabled=true; reconnectBtn.textContent="Connecting…"; api("/api/whatsapp/reconnect", {method:"POST"}).then(function(){ toast("WhatsApp connection started"); setTimeout(refreshStatus, 800); }).catch(function(e){ reconnectBtn.disabled=false; reconnectBtn.textContent="Reconnect WhatsApp"; toast(e.message); }); });
     var waBtn = $("waDisconnect");
     if (waBtn) waBtn.addEventListener("click", function() {
       confirmAction("Disconnect WhatsApp from Sheetal’s assistant? You can pair it again later.", function(){ api("/api/whatsapp/disconnect", {method:"POST"}).then(function(){ toast("WhatsApp disconnected"); refreshStatus(); }).catch(function(e){ toast(e.message); }); });

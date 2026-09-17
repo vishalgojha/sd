@@ -167,6 +167,23 @@ func (c *Client) Disconnect() {
 	}
 }
 
+// Reconnect resumes the stored WhatsApp session, or starts QR pairing when no
+// session exists. It is safe to call repeatedly from the settings screen.
+func (c *Client) Reconnect() error {
+	client := c.raw()
+	if client == nil {
+		return fmt.Errorf("WhatsApp client is not ready")
+	}
+	if client.IsConnected() {
+		return nil
+	}
+	if client.Store.ID == nil {
+		go c.startPairing()
+		return nil
+	}
+	return client.Connect()
+}
+
 func (c *Client) startPairing() {
 	client := c.raw()
 	if client == nil {

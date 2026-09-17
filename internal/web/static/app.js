@@ -21,7 +21,6 @@ function setupNav() {
     buttons.forEach(function(b) { b.classList.toggle("active", b.dataset.view === name); });
     Object.keys(views).forEach(function(k) { views[k].classList.toggle("active", k === name); });
     if (history.replaceState) history.replaceState(null, "", "#/" + name);
-    if (name === "music") refreshQueue();
     if (name === "tasks") refreshDashboard();
     if (name === "memory") refreshDashboard();
     if (name === "email") refreshServices();
@@ -313,9 +312,7 @@ refreshServices();
 setupCommand();
 loadChat();
 setupNewChat();
-setupMusic();
 setupTasks();
 seedChat();
 setInterval(refreshStatus, 12000);
 setInterval(refreshDashboard, 15000);
-setInterval(refreshQueue, 20000);

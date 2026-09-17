@@ -6,13 +6,13 @@
 <meta name="theme-color" content="#fffaf5">
 <title>Sheetal · WhatsApp Agent</title>
 <style>
-:root{--paper:#fffaf5;--card:#fff;--ink:#24201e;--muted:#9a928c;--line:#eee6df;--orange:#ff7652;--green:#21a26e;--amber:#e0a020;--shadow:0 12px 30px rgba(73,44,28,.08)}
+:root{--paper:#090b0f;--card:#11151b;--ink:#f2f5f7;--muted:#8f9aa8;--line:#27303b;--orange:#d8ff63;--green:#45d39b;--amber:#f3c969;--shadow:0 18px 40px rgba(0,0,0,.32)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;min-width:320px;min-height:100%;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
-body{background-image:radial-gradient(1200px 500px at 80% -10%,rgba(255,118,82,.10),transparent),radial-gradient(900px 400px at -10% 30%,rgba(33,162,110,.08),transparent);background-attachment:fixed}
+body{background-image:radial-gradient(1200px 500px at 80% -10%,rgba(216,255,99,.07),transparent),radial-gradient(900px 400px at -10% 30%,rgba(69,211,155,.06),transparent);background-attachment:fixed}
 .app{display:flex;min-height:100vh}
 /* ---------- Sidebar ---------- */
-.side{width:230px;flex:0 0 230px;padding:22px 14px;border-right:1px solid var(--line);background:rgba(255,255,255,.55);backdrop-filter:blur(6px);position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
+.side{width:230px;flex:0 0 230px;padding:22px 14px;border-right:1px solid var(--line);background:rgba(10,13,18,.82);backdrop-filter:blur(6px);position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
 .brand{display:flex;align-items:center;gap:11px;padding:4px 10px 18px}
 .avatar{width:44px;height:44px;display:grid;place-items:center;border-radius:15px;color:#d8ff63;background:linear-gradient(145deg,#29272f,#111116);box-shadow:0 10px 24px rgba(28,23,34,.22),inset 0 0 0 1px rgba(216,255,99,.24);position:relative;overflow:hidden;animation:logoFloat 5s ease-in-out infinite}
 .avatar:after{content:"";position:absolute;inset:-18px;border:1px solid rgba(216,255,99,.18);border-radius:50%;transform:rotate(-28deg)}
@@ -23,9 +23,9 @@ body{background-image:radial-gradient(1200px 500px at 80% -10%,rgba(255,118,82,.
 .badge{display:inline-flex;align-items:center;gap:6px;margin-top:4px;padding:3px 9px;border-radius:999px;font-size:9px;font-weight:800}
 .badge.on{background:#e6f6ef;color:#17744e}.badge.off{background:#f2ece6;color:#6c645c}
 .nav{display:flex;flex-direction:column;gap:4px;margin-top:6px}
-.nav button{display:flex;align-items:center;gap:11px;padding:11px 12px;border:0;border-radius:12px;background:transparent;color:#6c645c;font-size:13px;font-weight:700;cursor:pointer;text-align:left}
+.nav button{display:flex;align-items:center;gap:11px;padding:11px 12px;border:0;border-radius:12px;background:transparent;color:#9aa5b2;font-size:13px;font-weight:700;cursor:pointer;text-align:left}
 .nav button{transition:background .22s ease,color .22s ease,transform .22s ease}
-.nav button:hover{background:#f6efe9;color:var(--ink);transform:translateX(2px)}
+.nav button:hover{background:#1b222c;color:var(--ink);transform:translateX(2px)}
 .nav button.active{background:linear-gradient(110deg,#242023,#3a3030);color:#fff;box-shadow:0 8px 18px rgba(36,32,30,.13)}
 .nav .ic{width:20px;display:grid;place-items:center;font-size:15px}
 .side .foot{margin-top:auto;color:var(--muted);font-size:10px;padding:10px 12px 0}
@@ -38,7 +38,7 @@ body{background-image:radial-gradient(1200px 500px at 80% -10%,rgba(255,118,82,.
 h2.view-title{margin:0 0 6px;font-size:22px;letter-spacing:-.5px}
 .view-sub{color:var(--muted);font-size:12px;margin:0 0 18px;line-height:1.5}
 .view-sub em{font-style:normal;color:var(--orange)}
-.card{background:rgba(255,255,255,.84);border:1px solid rgba(238,230,223,.9);border-radius:20px;box-shadow:var(--shadow);padding:18px;margin-bottom:16px;transition:box-shadow .25s ease,transform .25s ease}
+.card{background:rgba(17,21,27,.92);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:18px;margin-bottom:16px;transition:box-shadow .25s ease,transform .25s ease}
 .card:hover{box-shadow:0 18px 38px rgba(73,44,28,.11);transform:translateY(-2px)}
 .state{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .pill{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;font-size:11px;font-weight:700;background:#f2ece6;color:#6c645c}
@@ -54,7 +54,7 @@ h2.view-title{margin:0 0 6px;font-size:22px;letter-spacing:-.5px}
 .chip b{width:7px;height:7px;border-radius:50%;background:#b8afa8}
 .chip.ok{color:#17744e;border-color:#c9ecdd;background:#effaf5}.chip.ok b{background:#21a26e}
 .cmd-row{display:flex;gap:8px;margin-top:4px}
-.cmd-row input,.cmd-row textarea{flex:1;min-width:0;border:1px solid var(--line);border-radius:13px;padding:12px 13px;outline:0;font:inherit;font-size:13px;background:#fff;color:var(--ink)}
+.cmd-row input,.cmd-row textarea{flex:1;min-width:0;border:1px solid var(--line);border-radius:13px;padding:12px 13px;outline:0;font:inherit;font-size:13px;background:#0d1116;color:var(--ink)}
 .cmd-row textarea{min-height:76px;resize:vertical;line-height:1.45}
 .cmd-row input:focus{border-color:var(--orange)}
 .btn{border:0;border-radius:13px;padding:0 18px;background:var(--orange);color:#fff;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap}
@@ -146,7 +146,7 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
       <button data-view="status"><span class="ic">◎</span>Status</button>
       <button data-view="chat"><span class="ic">✎</span>Chat</button>
       <button data-view="tasks"><span class="ic">☑</span>Tasks</button>
-      <button data-view="music"><span class="ic">♪</span>Music</button>
+      <button data-view="music"><span class="ic">✦</span>Things I can do</button>
       <button data-view="memory"><span class="ic">♡</span>Memory</button>
       <button data-view="email"><span class="ic">✉</span>Email</button>
     </div>
@@ -207,25 +207,18 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
       </div>
     </section>
 
-    <!-- MUSIC -->
+    <!-- ACTIONS -->
     <section class="view" id="view-music">
-      <div class="eyebrow">RADIO QUEUE</div>
-      <h2 class="view-title">Music</h2>
-      <p class="view-sub">Search Spotify and queue tracks — same queue the assistant pushes to your player.</p>
+      <div class="eyebrow">SHEETAL CAN HELP</div>
+      <h2 class="view-title">Things I can do</h2>
+      <p class="view-sub">Just ask in the chat or on WhatsApp. You don’t need to remember commands.</p>
       <div class="card">
-        <div class="cmd-row">
-          <input id="musicSearch" autocomplete="off" placeholder="Search: Arijit Singh, upbeat Hindi, focus…" aria-label="Music search">
-          <button id="musicSearchBtn" class="btn" type="button">SEARCH</button>
+        <div class="grid two">
+          <div><h3 style="margin:0 0 6px;font-size:14px">Daily life</h3><p class="view-sub">“Remind me to call Mum at 7.”<br>“Add atta and milk to my list.”<br>“Plan my day.”</p></div>
+          <div><h3 style="margin:0 0 6px;font-size:14px">Your services</h3><p class="view-sub">“Check my unread Gmail.”<br>“Play Arijit on my computer.”<br>“Open YouTube and search…”</p></div>
+          <div><h3 style="margin:0 0 6px;font-size:14px">Indian context</h3><p class="view-sub">Ask in Hindi, English, or Hinglish. Sheetal understands IST, local errands, festivals, and INR.</p></div>
+          <div><h3 style="margin:0 0 6px;font-size:14px">Need help?</h3><p class="view-sub">Type “help” or simply describe what you want. Sheetal will ask a question if anything is unclear.</p></div>
         </div>
-        <div id="musicResults"></div>
-      </div>
-      <div class="card">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-          <h3 style="margin:0;font-size:13px;flex:1">Queue</h3>
-          <button id="queueClearBtn" class="btn ghost" type="button">CLEAR OLD QUEUE</button>
-          <button id="queueNextBtn" class="btn ghost" type="button">NEXT</button>
-        </div>
-        <div id="musicQueue"><p class="empty">Queue is empty.</p></div>
       </div>
     </section>
 
@@ -264,11 +257,11 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
   <button data-view="status" class="active"><span class="ic">◎</span>Status</button>
   <button data-view="chat"><span class="ic">✎</span>Chat</button>
   <button data-view="tasks"><span class="ic">☑</span>Tasks</button>
-  <button data-view="music"><span class="ic">♪</span>Music</button>
+  <button data-view="music"><span class="ic">✦</span>Things I can do</button>
   <button data-view="memory"><span class="ic">♡</span>Memory</button>
   <button data-view="email"><span class="ic">✉</span>Email</button>
 </nav>
 
-<script src="/app.js"></script>
+<script src="/app.js?v=20260918-1"></script>
 </body>
 </html>

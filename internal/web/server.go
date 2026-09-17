@@ -52,6 +52,7 @@ func (s *Server) routes() {
 	fileServer := http.FileServer(http.FS(sub))
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate")
 		if r.URL.Path == "/" {
 			serveStatic(w, r, sub, "index.html", "text/html; charset=utf-8")
 			return

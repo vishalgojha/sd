@@ -109,14 +109,14 @@ var chatSessions = [];
 var activeChatId = "";
 var CHAT_STORE = "sdchat_sessions_v1";
 function chatId() { return "chat-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7); }
-function chatTitle(session) { var first = (session.messages || []).find(function(m) { return m.role === "user" && m.text; }); return first ? first.text.replace(/\s+/g, " ").slice(0, 38) : "New task"; }
+function chatTitle(session) { if (session.title) return session.title; var first = (session.messages || []).find(function(m) { return m.role === "user" && m.text; }); return first ? first.text.replace(/\s+/g, " ").slice(0, 38) : "New task"; }
 function chatPreview(session) { var last = (session.messages || []).slice(-1)[0]; return last ? last.text.replace(/\s+/g, " ").slice(0, 58) : "No messages yet"; }
 function persistSessions() { try { localStorage.setItem(CHAT_STORE, JSON.stringify(chatSessions.slice(-50))); } catch (_) {} }
 function formatChatDate(value) { var d = new Date(value || Date.now()); if (isNaN(d.getTime())) return ""; return d.toLocaleDateString([], {month:"short", day:"numeric"}) + " · " + d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}); }
 function renderChatHistory() {
   var list = $("historyList"); if (!list) return;
   $("historyCount").textContent = chatSessions.length ? String(chatSessions.length) : "";
-  list.innerHTML = chatSessions.slice().reverse().map(function(s) { return '<button class="history-item' + (s.id === activeChatId ? ' active' : '') + '" type="button" data-chat-id="' + esc(s.id) + '"><strong>' + esc(chatTitle(s)) + '</strong><small>' + esc(chatPreview(s)) + ' · ' + esc(formatChatDate(s.updatedAt || s.createdAt)) + '</small></button>'; }).join("") || '<div class="history-empty">Your conversations will appear here.</div>';
+  list.innerHTML = chatSessions.slice().reverse().map(function(s) { return '<div class="history-row"><button class="history-item' + (s.id === activeChatId ? ' active' : '') + '" type="button" data-chat-id="' + esc(s.id) + '"><strong>' + esc(chatTitle(s)) + '</strong><small>' + esc(chatPreview(s)) + ' · ' + esc(formatChatDate(s.updatedAt || s.createdAt)) + '</small></button><div class="history-actions"><button class="icon-btn" type="button" data-chat-action="rename" data-chat-id="' + esc(s.id) + '" title="Rename" aria-label="Rename chat">✎</button><button class="icon-btn" type="button" data-chat-action="delete" data-chat-id="' + esc(s.id) + '" title="Delete" aria-label="Delete chat">×</button></div></div>'; }).join("") || '<div class="history-empty">Your conversations will appear here.</div>';
 }
 function activeChat() { return chatSessions.find(function(s) { return s.id === activeChatId; }); }
 function createChat(withWelcome) {
@@ -208,6 +208,19 @@ function setupNewChat() {
     $("cmdInput").focus();
   });
   $("historyList").addEventListener("click", function(e) {
+    var action = e.target.closest("[data-chat-action]");
+    if (action) {
+      var session = chatSessions.find(function(s) { return s.id === action.dataset.chatId; });
+      if (!session) return;
+      if (action.dataset.chatAction === "rename") {
+        var name = window.prompt("Rename chat", chatTitle(session));
+        if (name && name.trim()) { session.title = name.trim().slice(0, 60); session.updatedAt = new Date().toISOString(); persistSessions(); renderChatHistory(); }
+      } else if (action.dataset.chatAction === "delete" && window.confirm("Delete this chat? This cannot be undone.")) {
+        chatSessions = chatSessions.filter(function(s) { return s.id !== session.id; });
+        if (!chatSessions.length) createChat(true); else if (activeChatId === session.id) switchChat(chatSessions[chatSessions.length - 1].id); else { persistSessions(); renderChatHistory(); }
+      }
+      return;
+    }
     var item = e.target.closest("[data-chat-id]");
     if (item) switchChat(item.dataset.chatId);
   });

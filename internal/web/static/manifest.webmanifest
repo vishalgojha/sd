@@ -1,0 +1,9 @@
+{
+  "name": "Agent V",
+  "short_name": "Agent V",
+  "start_url": "/#/chat",
+  "display": "standalone",
+  "background_color": "#090a0d",
+  "theme_color": "#090a0d",
+  "description": "Agent V command console and chat history"
+}

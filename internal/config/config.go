@@ -87,12 +87,23 @@ func envBool(name string, def bool) bool {
 // Load reads configuration from the environment.
 func Load() *Config {
 	dataDir := env("SDSHEETAL_DATA", "/data")
+	ownerNumbers := env("SD_OWNER_NUMBER", "")
+	// Coolify makes it convenient to add a second variable rather than edit an
+	// existing secret. Fold SD_OWNER_NUMBER_1, _2, ... into the same allowlist.
+	for i := 1; i <= 10; i++ {
+		if v := strings.TrimSpace(os.Getenv("SD_OWNER_NUMBER_" + strconv.Itoa(i))); v != "" {
+			if ownerNumbers != "" {
+				ownerNumbers += ","
+			}
+			ownerNumbers += v
+		}
+	}
 	return &Config{
 		Port:    env("PORT", "8080"),
 		DataDir: dataDir,
 
 		WhatsAppStore: env("WHATSNEW_STORE", dataDir+"/whatsmeow.db"),
-		Owner:         env("SD_OWNER_NUMBER", ""),
+		Owner:         ownerNumbers,
 
 		VoiceReplies:    envBool("SD_VOICE_REPLIES", false),
 		ReplyVoiceNotes: envBool("SD_VOICE_NOTE_REPLIES", false),

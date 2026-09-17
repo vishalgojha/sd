@@ -334,6 +334,10 @@ func (s *Server) emailConnect(w http.ResponseWriter, r *http.Request) {
 	}
 	link, err := s.gmail.ConnectLink()
 	if err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "integration does not exist") {
+			writeJSON(w, http.StatusBadGateway, map[string]any{"ok": false, "error": "Nango rejected the integration key. Set NANGO_INTEGRATION_ID to the exact provider-config key shown in Nango (not necessarily 'gmail'), then redeploy."})
+			return
+		}
 		writeJSON(w, http.StatusBadGateway, map[string]any{"ok": false, "error": err.Error()})
 		return
 	}

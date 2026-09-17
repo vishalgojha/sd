@@ -5,8 +5,7 @@ SERVER="${SHEETAL_SERVER:-https://sd.vishalojha.me}"
 BASE="${XDG_CONFIG_HOME:-$HOME/.config}/sheetal-bridge"
 BIN="$HOME/.local/bin/sheetal-bridge"
 mkdir -p "$BASE" "$HOME/.local/bin" "$HOME/.config/systemd/user"
-read -r -p "Paste your Sheetal bridge token: " TOKEN
-if [[ -z "$TOKEN" ]]; then echo "A bridge token is required." >&2; exit 2; fi
+read -r -p "Paste your Sheetal bridge token (leave blank if not enabled): " TOKEN
 curl -fL "$SERVER/downloads/sheetal-bridge-linux-amd64" -o "$BIN"
 chmod 700 "$BIN"
 printf '{"server":"%s","token":"%s","device":"linux-laptop"}\n' "$SERVER" "$TOKEN" > "$BASE/config.json"

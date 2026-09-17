@@ -247,7 +247,7 @@ func (a *Agent) greeting(raw string) Reply {
 		period = "good afternoon"
 	}
 	return Reply{
-		Text: fmt.Sprintf("%s! I'm here. Ask me to plan, remember, find a song, check tasks or shopping, or read your email.", strings.Title(period)),
+		Text: fmt.Sprintf("%s, Sheetal — I’m here. What would you like to do?", strings.Title(period)),
 		Tool: "greet",
 	}
 }
@@ -260,6 +260,7 @@ func (a *Agent) aiReply(message string) string {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	prompt := indianSystemPrompt(a.cfg.Station)
+	prompt += fmt.Sprintf("\nCurrent local time in IST: %s. Use this for time-aware greetings and relative dates.", a.now().Format("Monday, 2 January 2006, 3:04 PM"))
 	// Each hosted turn is a fresh session, so provide a short durable window
 	// from the on-disk conversation log for continuity across WhatsApp messages.
 	if m := a.store.Memory(); len(m.Conversations) > 1 {
@@ -270,6 +271,11 @@ func (a *Agent) aiReply(message string) string {
 			if strings.TrimSpace(entry.Text) != "" { recent = append(recent, entry.Text) }
 		}
 		if len(recent) > 0 { prompt += "\nRecent conversation (use only as context):\n" + strings.Join(recent, "\n") }
+		if len(m.KnowledgeGraph.Nodes) > 0 {
+			var facts []string
+			for _, n := range m.KnowledgeGraph.Nodes { if n.Type == "preference" && n.Value != "" { facts = append(facts, n.Value) } }
+			if len(facts) > 0 { prompt += "\nPersonal knowledge graph facts about Sheetal (use discreetly):\n- " + strings.Join(facts, "\n- ") }
+		}
 	}
 	if a.eleven != nil && a.eleven.Enabled() {
 		if text, err := a.eleven.Chat(ctx, prompt, message); err == nil && strings.TrimSpace(text) != "" {

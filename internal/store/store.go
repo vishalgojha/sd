@@ -132,9 +132,14 @@ type Memory struct {
 	TasteNotes    []MemoryEntry `json:"taste_notes"`
 	Conversations []MemoryEntry `json:"conversations"`
 	Moods         []MemoryEntry `json:"moods"`
+	KnowledgeGraph KnowledgeGraph `json:"knowledge_graph"`
 
 	Updated int64 `json:"updated"`
 }
+
+type KnowledgeNode struct { ID string `json:"id"`; Type string `json:"type"`; Label string `json:"label"`; Value string `json:"value,omitempty"`; Updated int64 `json:"updated"` }
+type KnowledgeEdge struct { From string `json:"from"`; Relation string `json:"relation"`; To string `json:"to"` }
+type KnowledgeGraph struct { Nodes []KnowledgeNode `json:"nodes"`; Edges []KnowledgeEdge `json:"edges"` }
 
 type QueueItem struct {
 	ID     string `json:"id"`
@@ -555,6 +560,7 @@ func (s *Store) RecordMemory(kind, track, text string) {
 			bucket[track]++
 		}
 	case "conversation":
+		s.ensurePersonNode(m)
 		if text != "" {
 			m.Conversations = append(m.Conversations, MemoryEntry{Text: CleanText(text, 400), TS: s.now().Unix()})
 			if n := len(m.Conversations); n > 80 {
@@ -570,6 +576,10 @@ func (s *Store) RecordMemory(kind, track, text string) {
 		}
 	case "preference":
 		if text != "" {
+			s.ensurePersonNode(m)
+			nodeID := "preference-" + NewID("kg")
+			m.KnowledgeGraph.Nodes = append(m.KnowledgeGraph.Nodes, KnowledgeNode{ID: nodeID, Type: "preference", Label: CleanText(text, 120), Value: CleanText(text, 300), Updated: s.now().Unix()})
+			m.KnowledgeGraph.Edges = append(m.KnowledgeGraph.Edges, KnowledgeEdge{From: "person-sheetal", Relation: "prefers", To: nodeID})
 			m.Preferences = append(m.Preferences, MemoryEntry{Text: CleanText(text, 300), TS: s.now().Unix()})
 			if n := len(m.Preferences); n > 80 {
 				m.Preferences = m.Preferences[n-80:]
@@ -584,6 +594,11 @@ func (s *Store) RecordMemory(kind, track, text string) {
 		}
 	}
 	_ = s.SaveMemory(m)
+}
+
+func (s *Store) ensurePersonNode(m *Memory) {
+	for _, n := range m.KnowledgeGraph.Nodes { if n.ID == "person-sheetal" { return } }
+	m.KnowledgeGraph.Nodes = append(m.KnowledgeGraph.Nodes, KnowledgeNode{ID: "person-sheetal", Type: "person", Label: "Sheetal", Updated: s.now().Unix()})
 }
 
 // --- queue -----------------------------------------------------------------

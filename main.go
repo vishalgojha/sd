@@ -64,6 +64,7 @@ func main() {
 			log.Fatalf("http server: %v", err)
 		}
 	}()
+	go reminderLoop(st, wa, cfg.TimeZone)
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
@@ -74,4 +75,19 @@ func main() {
 	defer cancel()
 	wa.Disconnect()
 	_ = httpSrv.Shutdown(ctx)
+}
+
+func reminderLoop(st *store.Store, wa *whatsapp.Client, zone string) {
+	loc, err := time.LoadLocation(zone); if err != nil { loc = time.FixedZone("IST", 5*3600+30*60) }
+	for {
+		now := time.Now().In(loc)
+		for _, t := range st.Tasks() {
+			if t.Status != "open" || t.Due == "" { continue }
+			due, err := time.Parse(time.RFC3339, t.Due); if err != nil || due.After(now) || now.Sub(due) > 2*time.Minute { continue }
+			if err := wa.SendTextToOwner("Reminder, Sheetal: " + t.Title); err != nil { log.Printf("reminder %s: %v", t.ID, err); continue }
+			st.CompleteTask(t.ID, "")
+			log.Printf("delivered reminder %s", t.ID)
+		}
+		time.Sleep(15 * time.Second)
+	}
 }

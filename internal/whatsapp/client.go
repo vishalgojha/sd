@@ -79,6 +79,16 @@ func (c *Client) Connected() bool {
 	return cc != nil && cc.IsConnected()
 }
 
+// SendTextToOwner delivers a scheduled reminder to the paired WhatsApp account.
+func (c *Client) SendTextToOwner(text string) error {
+	client := c.raw()
+	if client == nil || !client.IsConnected() || client.Store.ID == nil { return fmt.Errorf("WhatsApp is offline") }
+	to := *client.Store.ID
+	resp, err := client.SendMessage(context.Background(), to, textMessage(text))
+	if err == nil { c.rememberSent(resp.ID) }
+	return err
+}
+
 // PhoneNumber returns the logged-in number (digits only) if known.
 func (c *Client) PhoneNumber() string {
 	cc := c.raw()

@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
+	"strconv"
 	"sort"
 	"strings"
 	"time"
@@ -309,7 +311,11 @@ func (a *Agent) handleTasks(raw, text string) (Reply, bool) {
 		if title == "" {
 			return Reply{Text: "What would you like me to remember? Try \"remind me to call Aarti at 7pm\".", Tool: "create_task"}, true
 		}
-		t, err := a.store.CreateTask(title, "", "normal", "")
+		due := ""
+		if m := regexp.MustCompile(`(?i)\bat\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b`).FindStringSubmatch(raw); len(m) > 0 {
+			h, _ := strconv.Atoi(m[1]); min := 0; if m[2] != "" { min, _ = strconv.Atoi(m[2]) }; if strings.EqualFold(m[3], "pm") && h < 12 { h += 12 }; if strings.EqualFold(m[3], "am") && h == 12 { h = 0 }; due = a.now().Truncate(24*time.Hour).Add(time.Duration(h)*time.Hour + time.Duration(min)*time.Minute).Format(time.RFC3339)
+		}
+		t, err := a.store.CreateTask(title, due, "normal", "")
 		if err != nil {
 			return Reply{Text: "Sorry, I couldn't save that task.", Tool: "create_task"}, true
 		}

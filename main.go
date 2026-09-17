@@ -87,6 +87,9 @@ func reminderLoop(st *store.Store, wa *whatsapp.Client, zone string) {
 			// successful delivery completes the task so it is never repeated.
 			due, err := time.Parse(time.RFC3339, t.Due); if err != nil || due.After(now) || now.Sub(due) > 24*time.Hour { continue }
 			if err := wa.SendTextToOwner("Reminder, Sheetal: " + t.Title); err != nil { log.Printf("reminder %s: %v", t.ID, err); continue }
+			// Supplement WhatsApp with a native desktop alert when Agent V's
+			// companion bridge is online (useful when self-chat is muted).
+			_, _ = st.EnqueueBridge("laptop", "notify", map[string]any{"title": "Agent V reminder", "message": t.Title})
 			st.CompleteTask(t.ID, "")
 			log.Printf("delivered reminder %s", t.ID)
 		}

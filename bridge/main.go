@@ -100,6 +100,16 @@ func main() {
 func run(action string, p map[string]any) (string, string) {
 	s := func(k string) string { v, _ := p[k].(string); return v }
 	switch strings.ToLower(action) {
+	case "notify":
+		title, message := s("title"), s("message")
+		if title == "" { title = "Agent V" }
+		if message == "" { return "failed", "notification message required" }
+		if runtime.GOOS == "windows" {
+			_ = exec.Command("msg", "*", title+": "+message).Run()
+			return "done", "notification shown"
+		}
+		if err := exec.Command("notify-send", title, message).Run(); err != nil { return "failed", err.Error() }
+		return "done", "notification shown"
 	case "open_url":
 		u := s("url")
 		if u == "" {

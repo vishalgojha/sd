@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"time"
@@ -23,11 +24,49 @@ type job struct {
 	Parameters map[string]any `json:"parameters"`
 }
 
+type settings struct {
+	Server string `json:"server"`
+	Token  string `json:"token"`
+	Device string `json:"device"`
+}
+
+func configFile() string {
+	if runtime.GOOS == "windows" {
+		if d := os.Getenv("APPDATA"); d != "" {
+			return filepath.Join(d, "SheetalBridge", "config.json")
+		}
+	}
+	if d, err := os.UserConfigDir(); err == nil {
+		return filepath.Join(d, "sheetal-bridge", "config.json")
+	}
+	return ""
+}
+
+func readSettings() settings {
+	var s settings
+	if p := configFile(); p != "" {
+		if b, err := os.ReadFile(p); err == nil {
+			_ = json.Unmarshal(b, &s)
+		}
+	}
+	return s
+}
+
 func main() {
 	server := flag.String("server", os.Getenv("SHEETAL_SERVER"), "Sheetal URL")
 	token := flag.String("token", os.Getenv("SHEETAL_BRIDGE_TOKEN"), "bridge token")
 	device := flag.String("device", "laptop", "device id")
 	flag.Parse()
+	stored := readSettings()
+	if *server == "" {
+		*server = stored.Server
+	}
+	if *token == "" {
+		*token = stored.Token
+	}
+	if *device == "laptop" && stored.Device != "" {
+		*device = stored.Device
+	}
 	if *server == "" || *token == "" {
 		fmt.Fprintln(os.Stderr, "set SHEETAL_SERVER and SHEETAL_BRIDGE_TOKEN")
 		os.Exit(2)

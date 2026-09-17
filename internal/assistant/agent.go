@@ -271,6 +271,7 @@ func (a *Agent) aiReply(message string) string {
 			if strings.TrimSpace(entry.Text) != "" { recent = append(recent, entry.Text) }
 		}
 		if len(recent) > 0 { prompt += "\nRecent conversation (use only as context):\n" + strings.Join(recent, "\n") }
+		if len(m.Preferences) == 0 && len(m.Conversations) <= 2 { prompt += "\nThis is Sheetal’s first interaction. Give a warm time-aware greeting, then ask at most three concise onboarding questions: preferred reminder channel (WhatsApp, email, or screen), preferred language, and one useful preference to remember. Do not assume parents or family members." }
 		if len(m.KnowledgeGraph.Nodes) > 0 {
 			var facts []string
 			for _, n := range m.KnowledgeGraph.Nodes { if n.Type == "preference" && n.Value != "" { facts = append(facts, n.Value) } }

@@ -113,7 +113,7 @@ function appendMsg(role, text) {
   el.appendChild(t);
   var actions = document.createElement("div"); actions.className = "msg-actions";
   var copy = document.createElement("button"); copy.type="button"; copy.className="icon-btn"; copy.textContent="⧉"; copy.title="Copy"; copy.onclick=function(){ navigator.clipboard.writeText(text).then(function(){toast("Copied!");}); }; actions.appendChild(copy);
-  if (role === "bot") { var retry=document.createElement("button"); retry.type="button"; retry.className="icon-btn"; retry.textContent="↻"; retry.title="Retry"; retry.onclick=function(){ var rows=JSON.parse(localStorage.getItem("sdchat_history_v2")||"[]"); var last=rows.filter(function(x){return x.role==="user";}).pop(); if(last){ $("cmdInput").value=last.text; $("cmdSend").click(); } }; actions.appendChild(retry); }
+  if (role === "bot") { var retry=document.createElement("button"); retry.type="button"; retry.className="icon-btn"; retry.textContent="↻"; retry.title="Retry"; retry.onclick=function(){ var rows=JSON.parse(localStorage.getItem("sdchat_history_v3")||"[]"); var last=rows.filter(function(x){return x.role==="user";}).pop(); if(last){ $("cmdInput").value=last.text; $("cmdSend").click(); } }; actions.appendChild(retry); }
   el.appendChild(actions);
   thread.appendChild(el);
   thread.scrollTop = thread.scrollHeight;
@@ -126,12 +126,12 @@ function saveChat() {
     var t = el.querySelector(".t");
     return { role: el.classList.contains("user") ? "user" : "bot", text: (el.firstChild && el.firstChild.nodeValue) || el.textContent.replace(t ? t.textContent : "", "").trim(), time: t ? t.textContent : "" };
   });
-  try { localStorage.setItem("sdchat_history_v2", JSON.stringify(rows.slice(-100))); } catch (_) {}
+  try { localStorage.setItem("sdchat_history_v3", JSON.stringify(rows.slice(-100))); } catch (_) {}
 }
 
 function loadChat() {
   var rows = [];
-  try { rows = JSON.parse(localStorage.getItem("sdchat_history_v2") || "[]"); } catch (_) {}
+  try { rows = JSON.parse(localStorage.getItem("sdchat_history_v3") || "[]"); } catch (_) {}
   rows.forEach(function(row) { appendMsg(row.role === "user" ? "user" : "bot", row.text || ""); });
 }
 
@@ -163,9 +163,9 @@ function setupCommand() {
 }
 
 function seedChat() {
-  if (!localStorage.getItem("sdchat_history_v2")) {
-    appendMsg("bot", "Hi Sheetal — I’m Agent V. Tell me what you need in your own words and I’ll help.");
-    localStorage.setItem("sdchat_seeded", "1");
+  if (!localStorage.getItem("sdchat_history_v3")) {
+    appendMsg("bot", "Good to see you, Sheetal. What would you like Agent V to take care of?");
+    localStorage.setItem("sdchat_history_v3", localStorage.getItem("sdchat_history_v3") || "[]");
   }
 }
 

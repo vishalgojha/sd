@@ -335,11 +335,19 @@ func extFromMIME(mime string) string {
 
 // allowed checks the configured owner number (if any).
 func (c *Client) allowed(jid types.JID) bool {
-	owner := normalizeNumber(c.cfg.Owner)
-	if owner == "" {
+	owners := strings.FieldsFunc(c.cfg.Owner, func(r rune) bool {
+		return r == ',' || r == ';' || r == ' ' || r == '\n' || r == '\t'
+	})
+	if len(owners) == 0 {
 		return true
 	}
-	return normalizeNumber(jid.User) == owner
+	number := normalizeNumber(jid.User)
+	for _, owner := range owners {
+		if normalized := normalizeNumber(owner); normalized != "" && normalized == number {
+			return true
+		}
+	}
+	return false
 }
 
 func (c *Client) isSelfChat(jid types.JID) bool {

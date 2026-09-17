@@ -22,7 +22,7 @@ Every setting comes from environment variables — see `.env.example`. Key ones:
 
 | Variable | Purpose |
 | --- | --- |
-| `SD_OWNER_NUMBER` | E.164 number only WhatsApp replies to (required) |
+| `SD_OWNER_NUMBER` | One or more E.164 numbers only WhatsApp replies to (comma/semicolon separated; required) |
 | `WHATSNEW_STORE` | path to the sqlite session db (default `$SDSHEETAL_DATA/whatsmeow.db`) |
 | `SD_VOICE_REPLIES` | `true` to also send ElevenLabs voice notes |
 | `SD_VOICE_NOTE_REPLIES` | `true` to send replies only as voice notes |

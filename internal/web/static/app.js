@@ -307,7 +307,6 @@ function refreshServices() {
 setupNav();
 refreshStatus();
 refreshDashboard();
-refreshQueue();
 refreshServices();
 setupCommand();
 loadChat();

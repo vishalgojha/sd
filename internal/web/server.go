@@ -69,6 +69,9 @@ func (s *Server) routes() {
 	mux.HandleFunc("/downloads/sheetal-bridge-linux-amd64", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "https://github.com/vishalgojha/sd/raw/main/dist/sheetal-bridge-linux-amd64", http.StatusFound)
 	})
+	mux.HandleFunc("/downloads/Setup-SheetalBridge.ps1", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "https://github.com/vishalgojha/sd/raw/main/installer/windows/Setup-SheetalBridge.ps1", http.StatusFound)
+	})
 
 	// WhatsApp pairing / status
 	mux.HandleFunc("/api/whatsapp/status", s.status)

@@ -149,6 +149,38 @@ type QueueItem struct {
 	Source string `json:"source,omitempty"`
 }
 
+type BridgeJob struct {
+	ID         string         `json:"id"`
+	DeviceID   string         `json:"device_id"`
+	Action     string         `json:"action"`
+	Parameters map[string]any `json:"parameters,omitempty"`
+	Status     string         `json:"status"`
+	Result     string         `json:"result,omitempty"`
+	CreatedAt  string         `json:"created_at"`
+	UpdatedAt  string         `json:"updated_at"`
+}
+
+func (s *Store) BridgeJobs() []BridgeJob {
+	var out []BridgeJob
+	_ = s.readJSON(s.file("bridge-jobs.json"), &out)
+	return out
+}
+func (s *Store) SaveBridgeJobs(v []BridgeJob) error {
+	return s.writeJSON(s.file("bridge-jobs.json"), v)
+}
+func (s *Store) EnqueueBridge(device, action string, params map[string]any) (BridgeJob, error) {
+	if strings.TrimSpace(action) == "" {
+		return BridgeJob{}, fmt.Errorf("bridge action required")
+	}
+	now := NowISO()
+	j := BridgeJob{ID: NewID("bridge"), DeviceID: CleanText(device, 80), Action: CleanText(action, 80), Parameters: params, Status: "queued", CreatedAt: now, UpdatedAt: now}
+	jobs := append(s.BridgeJobs(), j)
+	if len(jobs) > 200 {
+		jobs = jobs[len(jobs)-200:]
+	}
+	return j, s.SaveBridgeJobs(jobs)
+}
+
 // Helpers.
 
 func CleanText(v string, limit int) string {
@@ -280,7 +312,7 @@ func (s *Store) Notes() []Note {
 func (s *Store) SaveNotes(notes []Note) error { return s.writeJSON(s.file("notes.json"), notes) }
 
 func (s *Store) CreateNote(title, body, tags string) (Note, error) {
-	title = CleanText(title, 120) 
+	title = CleanText(title, 120)
 	if title == "" {
 		title = "Untitled note"
 	}

@@ -24,7 +24,7 @@ import (
 var staticFiles embed.FS
 
 type Server struct {
-	cfg  *config.Config
+	cfg   *config.Config
 	store *store.Store
 	agent *assistant.Agent
 	spot  *spotify.Client
@@ -85,6 +85,9 @@ func (s *Server) routes() {
 	mux.HandleFunc("/api/music/command", s.musicCommand)
 
 	mux.HandleFunc("/api/memory/event", s.memoryEvent)
+	mux.HandleFunc("/api/bridge/enqueue", s.bridgeEnqueue)
+	mux.HandleFunc("/api/bridge/next", s.bridgeNext)
+	mux.HandleFunc("/api/bridge/result", s.bridgeResult)
 }
 
 func (s *Server) authed(r *http.Request) bool {
@@ -124,6 +127,84 @@ func (s *Server) requireAuth(w http.ResponseWriter, r *http.Request) bool {
 	return false
 }
 
+func (s *Server) bridgeEnqueue(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost || !s.requireAuth(w, r) {
+		if r.Method != http.MethodPost {
+			writeJSON(w, http.StatusMethodNotAllowed, map[string]any{"error": "use POST"})
+		}
+		return
+	}
+	var b struct {
+		DeviceID   string         `json:"device_id"`
+		Action     string         `json:"action"`
+		Parameters map[string]any `json:"parameters"`
+	}
+	if json.NewDecoder(r.Body).Decode(&b) != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]any{"ok": false, "error": "invalid JSON"})
+		return
+	}
+	j, err := s.store.EnqueueBridge(b.DeviceID, b.Action, b.Parameters)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]any{"ok": false, "error": err.Error()})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "job": j})
+}
+
+func (s *Server) bridgeNext(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost || !s.requireAuth(w, r) {
+		if r.Method != http.MethodPost {
+			writeJSON(w, http.StatusMethodNotAllowed, map[string]any{"error": "use POST"})
+		}
+		return
+	}
+	device := r.URL.Query().Get("device_id")
+	jobs := s.store.BridgeJobs()
+	for i := range jobs {
+		if jobs[i].Status == "queued" && (jobs[i].DeviceID == "" || jobs[i].DeviceID == device) {
+			jobs[i].Status = "running"
+			jobs[i].UpdatedAt = store.NowISO()
+			_ = s.store.SaveBridgeJobs(jobs)
+			writeJSON(w, http.StatusOK, map[string]any{"job": jobs[i]})
+			return
+		}
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"job": nil})
+}
+
+func (s *Server) bridgeResult(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost || !s.requireAuth(w, r) {
+		if r.Method != http.MethodPost {
+			writeJSON(w, http.StatusMethodNotAllowed, map[string]any{"error": "use POST"})
+		}
+		return
+	}
+	var b struct {
+		ID     string `json:"id"`
+		Status string `json:"status"`
+		Result string `json:"result"`
+	}
+	if json.NewDecoder(r.Body).Decode(&b) != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]any{"ok": false})
+		return
+	}
+	jobs := s.store.BridgeJobs()
+	for i := range jobs {
+		if jobs[i].ID == b.ID {
+			jobs[i].Status = store.CleanText(b.Status, 20)
+			if jobs[i].Status != "done" && jobs[i].Status != "failed" {
+				jobs[i].Status = "done"
+			}
+			jobs[i].Result = store.CleanText(b.Result, 4000)
+			jobs[i].UpdatedAt = store.NowISO()
+			_ = s.store.SaveBridgeJobs(jobs)
+			writeJSON(w, http.StatusOK, map[string]any{"ok": true})
+			return
+		}
+	}
+	writeJSON(w, http.StatusNotFound, map[string]any{"ok": false, "error": "job not found"})
+}
+
 func writeJSON(w http.ResponseWriter, code int, payload any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Cache-Control", "no-store")
@@ -153,19 +234,19 @@ func (s *Server) status(w http.ResponseWriter, r *http.Request) {
 		voiceProvider = "elevenlabs"
 	}
 	writeJSON(w, http.StatusOK, map[string]any{
-		"logged_in":    s.wa.LoggedIn(),
-		"connected":    s.wa.Connected(),
-		"phone":        s.wa.PhoneNumber(),
-		"pairing":      s.wa.QRPairing(),
-		"last_error":   s.wa.LastError(),
-		"owner":        s.cfg.Owner,
-		"station":      s.cfg.Station,
-		"voice_replies": s.cfg.VoiceReplies,
-		"voice_ready":  s.wa.VoiceReplyEnabled(),
+		"logged_in":      s.wa.LoggedIn(),
+		"connected":      s.wa.Connected(),
+		"phone":          s.wa.PhoneNumber(),
+		"pairing":        s.wa.QRPairing(),
+		"last_error":     s.wa.LastError(),
+		"owner":          s.cfg.Owner,
+		"station":        s.cfg.Station,
+		"voice_replies":  s.cfg.VoiceReplies,
+		"voice_ready":    s.wa.VoiceReplyEnabled(),
 		"voice_provider": voiceProvider,
-		"stt_ready":    s.wa.STTEnabled(),
-		"spotify":      s.spot.Enabled(),
-		"gmail":        s.gmail.Enabled(),
+		"stt_ready":      s.wa.STTEnabled(),
+		"spotify":        s.spot.Enabled(),
+		"gmail":          s.gmail.Enabled(),
 	})
 }
 
@@ -212,8 +293,8 @@ func (s *Server) dashboard(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) radioStatus(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{
-		"station":  s.cfg.Station,
-		"on_air":   false,
+		"station":   s.cfg.Station,
+		"on_air":    false,
 		"listeners": 0,
 		"queue_len": len(s.store.Queue()),
 	})
@@ -303,9 +384,17 @@ func (s *Server) queueRemove(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) queueClear(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost { writeJSON(w, http.StatusMethodNotAllowed, map[string]any{"error": "use POST"}); return }
-	if !s.requireAuth(w, r) { return }
-	if err := s.store.SaveQueue([]store.QueueItem{}); err != nil { writeJSON(w, http.StatusInternalServerError, map[string]any{"ok": false, "error": "could not clear queue"}); return }
+	if r.Method != http.MethodPost {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]any{"error": "use POST"})
+		return
+	}
+	if !s.requireAuth(w, r) {
+		return
+	}
+	if err := s.store.SaveQueue([]store.QueueItem{}); err != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]any{"ok": false, "error": "could not clear queue"})
+		return
+	}
 	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
 }
 
@@ -318,8 +407,8 @@ func (s *Server) emailStatus(w http.ResponseWriter, r *http.Request) {
 	}
 	conn := s.gmail.Connection()
 	writeJSON(w, http.StatusOK, map[string]any{
-		"configured": true,
-		"connected":  conn != nil && conn.ConnectionID != "",
+		"configured":     true,
+		"connected":      conn != nil && conn.ConnectionID != "",
 		"setup_required": false,
 	})
 }

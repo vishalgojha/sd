@@ -153,7 +153,6 @@ func (c *Client) RefreshConnection() (string, error) {
 	}
 	params := url.Values{}
 	params.Set("provider_config_key", c.cfg.NangoIntegration)
-	params.Set("tags[end_user_id]", c.cfg.NangoUserID)
 	params.Set("limit", "20")
 	body, err := c.nangoRequest("GET", "/connections?"+params.Encode(), nil, nil)
 	if err != nil {

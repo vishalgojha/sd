@@ -83,7 +83,9 @@ func reminderLoop(st *store.Store, wa *whatsapp.Client, zone string) {
 		now := time.Now().In(loc)
 		for _, t := range st.Tasks() {
 			if t.Status != "open" || t.Due == "" { continue }
-			due, err := time.Parse(time.RFC3339, t.Due); if err != nil || due.After(now) || now.Sub(due) > 2*time.Minute { continue }
+			// Deliver overdue reminders after a restart or brief outage as well;
+			// successful delivery completes the task so it is never repeated.
+			due, err := time.Parse(time.RFC3339, t.Due); if err != nil || due.After(now) || now.Sub(due) > 24*time.Hour { continue }
 			if err := wa.SendTextToOwner("Reminder, Sheetal: " + t.Title); err != nil { log.Printf("reminder %s: %v", t.ID, err); continue }
 			st.CompleteTask(t.ID, "")
 			log.Printf("delivered reminder %s", t.ID)

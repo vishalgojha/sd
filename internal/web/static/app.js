@@ -294,7 +294,7 @@ function refreshServices() {
     $("svcStatus").textContent = lines.join(" ");
     $("emailAccount").textContent = e.connected && e.account_email ? "Connected account: " + e.account_email : "";
     if (e.configured && !e.connected && !e.setup_required) {
-      $("emailLink").innerHTML = '<a class="link-btn" href="/api/email/connect">Connect Gmail</a>';
+      $("emailLink").innerHTML = '<a class="link-btn" href="/api/email/connect" target="_blank" rel="noopener">Connect Gmail <span aria-hidden="true">↗</span></a>';
     } else if (e.connected) {
       $("emailLink").innerHTML = '<button class="link-btn" id="emailDisconnect" type="button">Disconnect Gmail</button>';
       $("emailDisconnect").addEventListener("click", function() {

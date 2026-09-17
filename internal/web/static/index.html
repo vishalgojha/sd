@@ -14,27 +14,32 @@ body{background-image:radial-gradient(1200px 500px at 80% -10%,rgba(255,118,82,.
 /* ---------- Sidebar ---------- */
 .side{width:230px;flex:0 0 230px;padding:22px 14px;border-right:1px solid var(--line);background:rgba(255,255,255,.55);backdrop-filter:blur(6px);position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
 .brand{display:flex;align-items:center;gap:11px;padding:4px 10px 18px}
-.avatar{width:42px;height:42px;display:grid;place-items:center;border-radius:14px;color:#fff;background:linear-gradient(145deg,#ff9e70,#ed644a);box-shadow:0 8px 18px rgba(255,118,82,.25);font-weight:800;font-size:17px}
+.avatar{width:44px;height:44px;display:grid;place-items:center;border-radius:15px;color:#d8ff63;background:linear-gradient(145deg,#29272f,#111116);box-shadow:0 10px 24px rgba(28,23,34,.22),inset 0 0 0 1px rgba(216,255,99,.24);position:relative;overflow:hidden;animation:logoFloat 5s ease-in-out infinite}
+.avatar:after{content:"";position:absolute;inset:-18px;border:1px solid rgba(216,255,99,.18);border-radius:50%;transform:rotate(-28deg)}
+.avatar svg{width:25px;height:25px;position:relative;z-index:1;filter:drop-shadow(0 0 7px rgba(216,255,99,.5))}
+@keyframes logoFloat{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-3px) rotate(2deg)}}
 .brand h1{margin:0;font-size:18px;letter-spacing:-.4px}
 .brand p{margin:1px 0 0;color:var(--muted);font-size:11px}
 .badge{display:inline-flex;align-items:center;gap:6px;margin-top:4px;padding:3px 9px;border-radius:999px;font-size:9px;font-weight:800}
 .badge.on{background:#e6f6ef;color:#17744e}.badge.off{background:#f2ece6;color:#6c645c}
 .nav{display:flex;flex-direction:column;gap:4px;margin-top:6px}
 .nav button{display:flex;align-items:center;gap:11px;padding:11px 12px;border:0;border-radius:12px;background:transparent;color:#6c645c;font-size:13px;font-weight:700;cursor:pointer;text-align:left}
-.nav button:hover{background:#f6efe9;color:var(--ink)}
-.nav button.active{background:var(--ink);color:#fff}
+.nav button{transition:background .22s ease,color .22s ease,transform .22s ease}
+.nav button:hover{background:#f6efe9;color:var(--ink);transform:translateX(2px)}
+.nav button.active{background:linear-gradient(110deg,#242023,#3a3030);color:#fff;box-shadow:0 8px 18px rgba(36,32,30,.13)}
 .nav .ic{width:20px;display:grid;place-items:center;font-size:15px}
 .side .foot{margin-top:auto;color:var(--muted);font-size:10px;padding:10px 12px 0}
 /* ---------- Main ---------- */
 .main{flex:1;min-width:0;padding:30px 26px 60px;max-width:1080px;margin:0 auto}
 .view{display:none}
-.view.active{display:block;animation:fade .18s ease}
-@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.view.active{display:block;animation:fade .42s cubic-bezier(.2,.8,.2,1)}
+@keyframes fade{from{opacity:0;transform:translateY(12px) scale(.99)}to{opacity:1;transform:none}}
 .eyebrow{color:var(--orange);font-size:10px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;margin-bottom:4px}
 h2.view-title{margin:0 0 6px;font-size:22px;letter-spacing:-.5px}
 .view-sub{color:var(--muted);font-size:12px;margin:0 0 18px;line-height:1.5}
 .view-sub em{font-style:normal;color:var(--orange)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:18px;margin-bottom:16px}
+.card{background:rgba(255,255,255,.84);border:1px solid rgba(238,230,223,.9);border-radius:20px;box-shadow:var(--shadow);padding:18px;margin-bottom:16px;transition:box-shadow .25s ease,transform .25s ease}
+.card:hover{box-shadow:0 18px 38px rgba(73,44,28,.11);transform:translateY(-2px)}
 .state{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .pill{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;font-size:11px;font-weight:700;background:#f2ece6;color:#6c645c}
 .pill i{width:8px;height:8px;border-radius:50%;background:#b8afa8}
@@ -80,6 +85,8 @@ h2.view-title{margin:0 0 6px;font-size:22px;letter-spacing:-.5px}
 .icon-btn:hover{border-color:var(--orange);color:var(--orange)}
 .spin{display:inline-block;width:12px;height:12px;border:2px solid var(--line);border-top-color:var(--orange);border-radius:50%;animation:r 0.8s linear infinite}
 @keyframes r{to{transform:rotate(360deg)}}
+.qr-wait{animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
 /* ---------- Email ---------- */
 .email-list{display:grid;gap:8px;margin-top:10px}
 .email-item{padding:10px;border:1px solid var(--line);border-radius:12px;background:#fffbf7}
@@ -105,7 +112,13 @@ h2.view-title{margin:0 0 6px;font-size:22px;letter-spacing:-.5px}
 <div class="app">
   <nav class="side">
     <div class="brand">
-      <div class="avatar">S</div>
+      <div class="avatar" aria-label="Sheetal mark">
+        <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <path d="M8 17.5c0-5.5 4.3-9.5 10.4-9.5 2.2 0 4.1.5 5.6 1.5-1.5 1-2.5 2.5-2.7 4.3-.9-.7-2-.9-3.3-.9-2.8 0-4.8 1.8-4.8 4.5 0 2.5 1.8 4.2 4.4 4.2 1.8 0 3.3-.6 4.5-1.8-.8 3.6-3.6 5.7-7.6 5.7C10.7 25.5 8 22.3 8 17.5Z" fill="currentColor"/>
+          <path d="M7 11.3c2.3-3.2 5.7-5.1 10.1-5.3" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".9"/>
+          <circle cx="24.6" cy="8" r="1.5" fill="#fff"/>
+        </svg>
+      </div>
       <div><h1>Sheetal</h1><span class="badge" id="hdrBadge">…</span></div>
     </div>
     <div class="nav">

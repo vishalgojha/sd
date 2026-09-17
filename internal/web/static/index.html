@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fffaf5">
+<title>Sheetal · WhatsApp Agent</title>
+<style>
+:root{--paper:#fffaf5;--card:#fff;--ink:#24201e;--muted:#9a928c;--line:#eee6df;--orange:#ff7652;--green:#21a26e;--amber:#e0a020;--shadow:0 12px 30px rgba(73,44,28,.08)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-width:320px;min-height:100%;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+body{background-image:radial-gradient(1200px 500px at 80% -10%,rgba(255,118,82,.10),transparent),radial-gradient(900px 400px at -10% 30%,rgba(33,162,110,.08),transparent);background-attachment:fixed}
+.app{display:flex;min-height:100vh}
+/* ---------- Sidebar ---------- */
+.side{width:230px;flex:0 0 230px;padding:22px 14px;border-right:1px solid var(--line);background:rgba(255,255,255,.55);backdrop-filter:blur(6px);position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
+.brand{display:flex;align-items:center;gap:11px;padding:4px 10px 18px}
+.avatar{width:42px;height:42px;display:grid;place-items:center;border-radius:14px;color:#fff;background:linear-gradient(145deg,#ff9e70,#ed644a);box-shadow:0 8px 18px rgba(255,118,82,.25);font-weight:800;font-size:17px}
+.brand h1{margin:0;font-size:18px;letter-spacing:-.4px}
+.brand p{margin:1px 0 0;color:var(--muted);font-size:11px}
+.badge{display:inline-flex;align-items:center;gap:6px;margin-top:4px;padding:3px 9px;border-radius:999px;font-size:9px;font-weight:800}
+.badge.on{background:#e6f6ef;color:#17744e}.badge.off{background:#f2ece6;color:#6c645c}
+.nav{display:flex;flex-direction:column;gap:4px;margin-top:6px}
+.nav button{display:flex;align-items:center;gap:11px;padding:11px 12px;border:0;border-radius:12px;background:transparent;color:#6c645c;font-size:13px;font-weight:700;cursor:pointer;text-align:left}
+.nav button:hover{background:#f6efe9;color:var(--ink)}
+.nav button.active{background:var(--ink);color:#fff}
+.nav .ic{width:20px;display:grid;place-items:center;font-size:15px}
+.side .foot{margin-top:auto;color:var(--muted);font-size:10px;padding:10px 12px 0}
+/* ---------- Main ---------- */
+.main{flex:1;min-width:0;padding:30px 26px 60px;max-width:1080px;margin:0 auto}
+.view{display:none}
+.view.active{display:block;animation:fade .18s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.eyebrow{color:var(--orange);font-size:10px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;margin-bottom:4px}
+h2.view-title{margin:0 0 6px;font-size:22px;letter-spacing:-.5px}
+.view-sub{color:var(--muted);font-size:12px;margin:0 0 18px;line-height:1.5}
+.view-sub em{font-style:normal;color:var(--orange)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:18px;margin-bottom:16px}
+.state{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;font-size:11px;font-weight:700;background:#f2ece6;color:#6c645c}
+.pill i{width:8px;height:8px;border-radius:50%;background:#b8afa8}
+.pill.ok{background:#e6f6ef;color:#17744e}.pill.ok i{background:#21a26e;box-shadow:0 0 0 4px rgba(33,162,110,.15)}
+.pill.warn{background:#fff2e8;color:#b3552e}.pill.warn i{background:#ff7652;box-shadow:0 0 0 4px rgba(255,118,82,.15)}
+.pill.err{background:#fdecec;color:#b3372b}.pill.err i{background:#e0493b}
+.qr{display:flex;justify-content:center;margin-top:14px}
+.qr img{width:280px;height:280px;max-width:100%;border-radius:14px;border:1px solid var(--line)}
+.status{min-height:14px;margin-top:9px;color:var(--muted);font-size:11px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:10px;font-size:11px;font-weight:700;border:1px solid var(--line);background:#fffdfb;color:#6c645c}
+.chip b{width:7px;height:7px;border-radius:50%;background:#b8afa8}
+.chip.ok{color:#17744e;border-color:#c9ecdd;background:#effaf5}.chip.ok b{background:#21a26e}
+.cmd-row{display:flex;gap:8px;margin-top:4px}
+.cmd-row input{flex:1;min-width:0;border:1px solid var(--line);border-radius:13px;padding:12px 13px;outline:0;font-size:13px;background:#fff;color:var(--ink)}
+.cmd-row input:focus{border-color:var(--orange)}
+.btn{border:0;border-radius:13px;padding:0 18px;background:var(--orange);color:#fff;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--orange);color:var(--orange)}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:760px){.grid.two{grid-template-columns:1fr 1fr}}
+.list{margin:0;padding:0;list-style:none}
+.list li{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+.list li:last-child{border-bottom:0}
+.list em{font-style:normal;color:var(--muted);font-size:11px;white-space:nowrap}
+.empty{color:var(--muted);font-size:12px;padding:8px 0}
+/* ---------- Chat ---------- */
+.thread{display:flex;flex-direction:column;gap:10px;padding:4px 4px;max-height:calc(100vh - 320px);min-height:240px;overflow-y:auto;margin-bottom:14px}
+.msg{max-width:78%;padding:10px 13px;border-radius:16px;font-size:13.5px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word;position:relative}
+.msg .t{display:block;margin-top:5px;font-size:9.5px;color:var(--muted)}
+.msg.bot{align-self:flex-start;background:#f4ede6;border-bottom-left-radius:5px;border:1px solid #eee2d6}
+.msg.user{align-self:flex-end;background:linear-gradient(145deg,#ff9e70,#ed644a);color:#fff;border-bottom-right-radius:5px}
+.msg.user .t{color:rgba(255,255,255,.8)}
+/* ---------- Media (music) ---------- */
+.media{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.media:last-child{border-bottom:0}
+.media img{width:46px;height:46px;border-radius:10px;object-fit:cover;background:var(--line)}
+.media .m-name{font-size:13px;font-weight:600}
+.media .m-art{font-size:11px;color:var(--muted)}
+.media .m-acts{margin-left:auto;display:flex;gap:6px;align-items:center}
+.icon-btn{width:30px;height:30px;display:grid;place-items:center;border:1px solid var(--line);background:#fff;border-radius:9px;font-size:14px;font-weight:700;color:var(--ink);cursor:pointer}
+.icon-btn:hover{border-color:var(--orange);color:var(--orange)}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--line);border-top-color:var(--orange);border-radius:50%;animation:r 0.8s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+/* ---------- Email ---------- */
+.email-list{display:grid;gap:8px;margin-top:10px}
+.email-item{padding:10px;border:1px solid var(--line);border-radius:12px;background:#fffbf7}
+.email-item strong{display:block;font-size:12px}
+.email-item span{display:block;margin-top:2px;color:var(--muted);font-size:11px}
+.email-item small{display:block;margin-top:3px;color:#8d8179;font-size:10px;line-height:1.4}
+.link-btn{display:inline-block;border:1px solid var(--line);border-radius:11px;padding:8px 12px;color:var(--ink);background:#fff;font-size:11px;font-weight:700;text-decoration:none}
+.link-btn:hover{border-color:var(--orange);color:var(--orange)}
+/* ---------- Mobile bottom nav ---------- */
+.mnav{display:none}
+@media(max-width:720px){
+  .side{display:none}
+  .app{flex-direction:column}
+  .main{padding:22px 16px 96px}
+  .mnav{display:flex;position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-top:1px solid var(--line);z-index:50}
+  .mnav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 12px;border:0;background:none;font-size:9px;font-weight:700;color:var(--muted);cursor:pointer}
+  .mnav button.active{color:var(--orange)}
+  .mnav .ic{font-size:17px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="side">
+    <div class="brand">
+      <div class="avatar">S</div>
+      <div><h1>Sheetal</h1><span class="badge" id="hdrBadge">…</span></div>
+    </div>
+    <div class="nav">
+      <button data-view="status"><span class="ic">◎</span>Status</button>
+      <button data-view="chat"><span class="ic">✎</span>Chat</button>
+      <button data-view="tasks"><span class="ic">☑</span>Tasks</button>
+      <button data-view="music"><span class="ic">♪</span>Music</button>
+      <button data-view="memory"><span class="ic">♡</span>Memory</button>
+      <button data-view="email"><span class="ic">✉</span>Email</button>
+    </div>
+    <div class="foot">sdsheetal-go · whatsmeow</div>
+  </nav>
+
+  <main class="main">
+
+    <!-- STATUS -->
+    <section class="view active" id="view-status">
+      <div class="eyebrow">WHATSAPP</div>
+      <h2 class="view-title">Status</h2>
+      <p class="view-sub">Pairing, connection, and the services the assistant can use. Owner: <em id="ownerInfo">-</em>.</p>
+      <div class="card">
+        <div class="state">
+          <span class="pill" id="pillLogin"><i></i>Checking</span>
+          <span class="pill" id="pillConn"><i></i>Checking</span>
+          <span class="pill" id="pillVoice"><i></i>Voice</span>
+          <span class="pill" id="pillSTT"><i></i>Voice notes</span>
+        </div>
+        <div class="qr" id="qrBox"><p class="empty">Waiting…</p></div>
+        <p class="status" id="waStatus"></p>
+        <div class="chips" id="capChips"></div>
+      </div>
+    </section>
+
+    <!-- CHAT -->
+    <section class="view" id="view-chat">
+      <div class="eyebrow">COMMAND CONSOLE</div>
+      <h2 class="view-title">Chat</h2>
+      <p class="view-sub">The same brain that runs on WhatsApp. Type a command or just talk — <em>add milk to shopping</em>, <em>play dua lipa</em>, <em>what's my plan today?</em></p>
+      <div class="card">
+        <div class="thread" id="thread"></div>
+        <div class="cmd-row">
+          <input id="cmdInput" autocomplete="off" placeholder="Message Sheetal… (Enter to send)" aria-label="Assistant command">
+          <button id="cmdSend" class="btn" type="button">SEND</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TASKS -->
+    <section class="view" id="view-tasks">
+      <div class="eyebrow">TODAY</div>
+      <h2 class="view-title">Tasks &amp; plan</h2>
+      <p class="view-sub">Open tasks and today's plan. Quick-add here runs through the same assistant as WhatsApp.</p>
+      <div class="card">
+        <div class="cmd-row">
+          <input id="taskInput" autocomplete="off" placeholder="Add a task, e.g. call Aarti at 7pm" aria-label="Add task">
+          <button id="taskAdd" class="btn" type="button">ADD</button>
+        </div>
+        <h3 style="margin:16px 0 4px;font-size:13px">Open tasks</h3>
+        <ul class="list" id="taskList"><li class="empty">Loading…</li></ul>
+      </div>
+      <div class="card">
+        <h3 style="margin:0 0 6px;font-size:13px">Today's plan</h3>
+        <p class="status" style="margin:0 0 8px">"Plan my day: walk, groceries, homework" creates one.</p>
+        <ul class="list" id="planList"><li class="empty">No plan yet.</li></ul>
+      </div>
+    </section>
+
+    <!-- MUSIC -->
+    <section class="view" id="view-music">
+      <div class="eyebrow">RADIO QUEUE</div>
+      <h2 class="view-title">Music</h2>
+      <p class="view-sub">Search Spotify and queue tracks — same queue the assistant pushes to your player.</p>
+      <div class="card">
+        <div class="cmd-row">
+          <input id="musicSearch" autocomplete="off" placeholder="Search: Arijit Singh, upbeat Hindi, focus…" aria-label="Music search">
+          <button id="musicSearchBtn" class="btn" type="button">SEARCH</button>
+        </div>
+        <div id="musicResults"></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <h3 style="margin:0;font-size:13px;flex:1">Queue</h3>
+          <button id="queueNextBtn" class="btn ghost" type="button">NEXT</button>
+        </div>
+        <div id="musicQueue"><p class="empty">Queue is empty.</p></div>
+      </div>
+    </section>
+
+    <!-- MEMORY -->
+    <section class="view" id="view-memory">
+      <div class="eyebrow">MEMORY</div>
+      <h2 class="view-title">What I remember</h2>
+      <p class="view-sub">Preferences and taste notes gathered from your chats. Add more by telling the assistant <em>remember: …</em> on WhatsApp.</p>
+      <div class="grid two">
+        <div class="card">
+          <h3 style="margin:0 0 6px;font-size:13px">Preferences</h3>
+          <ul class="list" id="prefList"><li class="empty">Nothing yet.</li></ul>
+        </div>
+        <div class="card">
+          <h3 style="margin:0 0 6px;font-size:13px">Taste notes</h3>
+          <ul class="list" id="tasteList"><li class="empty">Nothing yet.</li></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- EMAIL -->
+    <section class="view" id="view-email">
+      <div class="eyebrow">CONNECTED SERVICES</div>
+      <h2 class="view-title">Email</h2>
+      <p class="view-sub" id="svcStatus">Checking configured services…</p>
+      <div class="card">
+        <div class="email-list" id="emailList"></div>
+        <div class="link-wrap" id="emailLink" style="margin-top:10px"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<nav class="mnav">
+  <button data-view="status" class="active"><span class="ic">◎</span>Status</button>
+  <button data-view="chat"><span class="ic">✎</span>Chat</button>
+  <button data-view="tasks"><span class="ic">☑</span>Tasks</button>
+  <button data-view="music"><span class="ic">♪</span>Music</button>
+  <button data-view="memory"><span class="ic">♡</span>Memory</button>
+  <button data-view="email"><span class="ic">✉</span>Email</button>
+</nav>
+
+<script src="/app.js"></script>
+</body>
+</html>

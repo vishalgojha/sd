@@ -1,0 +1,269 @@
+const $ = id => document.getElementById(id);
+
+async function api(url, opts) {
+  const res = await fetch(url, Object.assign({ cache: "no-store" }, opts || {}));
+  const data = await res.json().catch(function() { return {}; });
+  if (!res.ok && data && data.error) throw new Error(data.error);
+  return data;
+}
+
+function esc(v) { return String(v == null ? "" : v).replace(/[&<>]/g, function(c) { return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); }
+function pill(el, label, kind) { el.className = "pill " + (kind || ""); el.innerHTML = "<i></i>" + esc(label); }
+function fmtDur(ms) { if (!ms) return ""; var s = Math.round(ms / 1000), m = Math.floor(s / 60), r = s % 60; return m + ":" + ("0" + r).slice(-2); }
+function nowTime() { var d = new Date(); return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
+
+/* ---------- View switching ---------- */
+function setupNav() {
+  var buttons = document.querySelectorAll("[data-view]");
+  var views = {};
+  document.querySelectorAll(".view").forEach(function(v) { views[v.id.replace("view-", "")] = v; });
+  function go(name) {
+    buttons.forEach(function(b) { b.classList.toggle("active", b.dataset.view === name); });
+    Object.keys(views).forEach(function(k) { views[k].classList.toggle("active", k === name); });
+    if (history.replaceState) history.replaceState(null, "", "#/" + name);
+    if (name === "music") refreshQueue();
+    if (name === "tasks") refreshDashboard();
+    if (name === "memory") refreshDashboard();
+    if (name === "email") refreshServices();
+  }
+  buttons.forEach(function(b) { b.addEventListener("click", function() { go(b.dataset.view); }); });
+  var start = (location.hash || "#/status").replace("#/", "");
+  if (!views[start]) start = "status";
+  go(start);
+}
+
+/* ---------- WhatsApp status ---------- */
+
+function refreshStatus() {
+  api("/api/whatsapp/status").then(function(s) {
+    var hdr = $("hdrBadge");
+    if (s.logged_in && s.connected) { hdr.className = "badge on"; hdr.textContent = "● online"; }
+    else if (s.pairing) { hdr.className = "badge off"; hdr.textContent = "pairing"; }
+    else { hdr.className = "badge off"; hdr.textContent = "offline"; }
+
+    pill($("pillLogin"), s.logged_in ? ("Linked: " + (s.phone || "phone")) : "Not linked", s.logged_in ? "ok" : "warn");
+    pill($("pillConn"), s.connected ? "Connected" : (s.pairing ? "Pairing" : "Disconnected"), s.connected ? "ok" : (s.pairing ? "warn" : "err"));
+    $("ownerInfo").textContent = s.owner || "no owner set (all chats allowed)";
+
+    var vLabel = s.voice_ready
+      ? "Voice: " + (s.voice_provider === "sarvam" ? "Sarvam" : s.voice_provider === "elevenlabs" ? "ElevenLabs" : "on")
+      : (s.voice_replies ? "Voice: not configured" : "Voice: off");
+    pill($("pillVoice"), vLabel, s.voice_ready ? "ok" : "warn");
+    pill($("pillSTT"), s.stt_ready ? "Voice notes: on" : "Voice notes: off", s.stt_ready ? "ok" : "warn");
+
+    $("waStatus").textContent = s.last_error ? ("Last error: " + s.last_error) : (s.pairing ? "Pairing in progress - scan the QR with WhatsApp." : "");
+
+    if (s.pairing && !s.logged_in) {
+      $("qrBox").innerHTML = '<img alt="WhatsApp pairing QR" src="/api/whatsapp/qr.png?t=' + Date.now() + '">';
+      setTimeout(refreshStatus, 4000);
+    } else if (!s.logged_in) {
+      $("qrBox").innerHTML = '<p class="empty">Not paired - WhatsApp will request a scan when the app starts.</p>';
+    } else {
+      $("qrBox").innerHTML = '<p class="empty">Session stored - no QR needed.</p>';
+    }
+
+    var chips = "";
+    chips += chip("Spotify", s.spotify);
+    if (s.voice_provider === "sarvam") chips += chip("Sarvam voice", true);
+    else if (s.voice_provider === "elevenlabs") chips += chip("ElevenLabs voice", true);
+    chips += chip("Voice notes (Sarvam STT)", s.stt_ready);
+    chips += chip("Gmail", s.gmail);
+    $("capChips").innerHTML = chips;
+  }).catch(function(e) {
+    pill($("pillLogin"), "Offline", "err");
+    pill($("pillConn"), "Unreachable", "err");
+    $("waStatus").textContent = e.message;
+  });
+}
+
+function chip(label, on) {
+  return '<span class="chip' + (on ? " ok" : "") + '"><b></b>' + esc(label) + (on ? " on" : " off") + "</span>";
+}
+
+/* ---------- Chat ---------- */
+
+function appendMsg(role, text) {
+  var thread = $("thread");
+  var el = document.createElement("div");
+  el.className = "msg " + role;
+  el.textContent = text;
+  var t = document.createElement("span");
+  t.className = "t";
+  t.textContent = nowTime();
+  el.appendChild(t);
+  thread.appendChild(el);
+  thread.scrollTop = thread.scrollHeight;
+  return el;
+}
+
+function setupCommand() {
+  var input = $("cmdInput"), btn = $("cmdSend");
+  function ask() {
+    var msg = (input.value || "").trim();
+    if (!msg) return;
+    appendMsg("user", msg);
+    input.value = "";
+    btn.disabled = true; btn.textContent = "…";
+    var pending = appendMsg("bot", "…");
+    api("/api/command", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: msg })
+    }).then(function(d) {
+      pending.textContent = d.reply || "Done.";
+      btn.disabled = false; btn.textContent = "SEND";
+      refreshDashboard();
+    }).catch(function(e) {
+      pending.textContent = "Error: " + e.message;
+      btn.disabled = false; btn.textContent = "SEND";
+    });
+  }
+  btn.addEventListener("click", ask);
+  input.addEventListener("keydown", function(e) { if (e.key === "Enter") ask(); });
+}
+
+function seedChat() {
+  if (!localStorage.getItem("sdchat_seeded")) {
+    appendMsg("bot", "Hi, I'm Sheetal. Ask me to remind, note things, add to shopping, plan your day, play music, or check email.");
+    localStorage.setItem("sdchat_seeded", "1");
+  }
+}
+
+/* ---------- Dashboard (tasks / plan / memory) ---------- */
+
+function refreshDashboard() {
+  api("/api/dashboard").then(function(d) {
+    var tasks = (d.tasks || []).slice(0, 10);
+    $("taskList").innerHTML = tasks.length
+      ? tasks.map(function(t) { return "<li><span>" + esc(t.title) + (t.priority === "high" ? " (high)" : "") + "</span><em>" + esc(t.due || t.priority) + "</em></li>"; }).join("")
+      : '<li class="empty">No open tasks.</li>';
+
+    var plan = (d.plans || [])[0];
+    $("planList").innerHTML = (plan && plan.items && plan.items.length)
+      ? plan.items.map(function(x) { return "<li><span>" + esc(x) + "</span></li>"; }).join("")
+      : '<li class="empty">No plan for today.</li>';
+
+    var m = d.memory || {};
+    $("prefList").innerHTML = (m.preferences || []).length
+      ? m.preferences.map(function(p) { return "<li><span>" + esc(p) + "</span></li>"; }).join("")
+      : '<li class="empty">Nothing yet.</li>';
+    $("tasteList").innerHTML = (m.taste_notes || []).length
+      ? m.taste_notes.map(function(t) { return "<li><span>" + esc(t) + "</span></li>"; }).join("")
+      : '<li class="empty">Nothing yet.</li>';
+  }).catch(function() {});
+}
+
+/* ---------- Music ---------- */
+
+function renderQueue(q) {
+  if (!q.length) { $("musicQueue").innerHTML = '<p class="empty">Queue is empty. Search and add tracks above.</p>'; return; }
+  $("musicQueue").innerHTML = q.map(function(item) {
+    var art = item.art ? '<img src="' + esc(item.art) + '" alt="">' : '<img alt="">';
+    var dim = item.status === "done" ? ' style="opacity:.45"' : "";
+    return '<div class="media"' + dim + '>' + art +
+      '<div><div class="m-name">' + esc(item.name || item.uri) + '</div>' +
+      '<div class="m-art">' + esc(item.artist || "") + (item.album ? " · " + esc(item.album) : "") + ' <em>' + fmtDur(item.dur_ms) + '</em></div></div>' +
+      (item.status !== "done" ? '<div class="m-acts"><button class="icon-btn" data-act="remove" data-id="' + esc(item.id) + '" title="Remove">×</button></div>' : "") +
+      '</div>';
+  }).join("");
+}
+
+function refreshQueue() {
+  api("/api/queue").then(function(d) { renderQueue(d.queue || []); }).catch(function() {});
+}
+
+function setupMusic() {
+  var input = $("musicSearch"), btn = $("musicSearchBtn"), results = $("musicResults");
+  function search() {
+    var q = (input.value || "").trim();
+    if (!q) return;
+    results.innerHTML = '<p class="empty"><span class="spin"></span> Searching…</p>';
+    api("/api/search?q=" + encodeURIComponent(q)).then(function(d) {
+      var tracks = (d.results || []).slice(0, 6);
+      if (!tracks.length) { results.innerHTML = '<p class="empty">No results for "' + esc(q) + '".</p>'; return; }
+      results.innerHTML = tracks.map(function(t) {
+        var art = t.art ? '<img src="' + esc(t.art) + '" alt="">' : '<img alt="">';
+        return '<div class="media">' + art +
+          '<div><div class="m-name">' + esc(t.name) + '</div><div class="m-art">' + esc(t.artist) + ' <em>' + fmtDur(t.dur_ms) + '</em></div></div>' +
+          '<div class="m-acts"><button class="icon-btn" data-act="add" data-query="' + esc(t.name + " " + t.artist) + '" title="Add to queue">+</button></div></div>';
+      }).join("");
+    }).catch(function(e) { results.innerHTML = '<p class="empty">Search failed: ' + esc(e.message) + '</p>'; });
+  }
+  $("queueNextBtn").addEventListener("click", function() {
+    api("/api/queue/next", { method: "POST" }).then(function(d) {
+      if (d.item) $("waStatus").textContent = "Claimed: " + d.item.name + " - " + d.item.artist;
+      refreshQueue();
+    });
+  });
+  results.addEventListener("click", function(e) {
+    var t = e.target.closest("[data-act]");
+    if (!t || t.dataset.act !== "add") return;
+    api("/api/queue", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query: t.dataset.query }) })
+      .then(function(d) { refreshQueue(); if (d.reply) $("waStatus").textContent = d.reply; });
+  });
+  $("musicQueue").addEventListener("click", function(e) {
+    var t = e.target.closest("[data-act]");
+    if (!t || t.dataset.act !== "remove") return;
+    api("/api/queue/remove", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: t.dataset.id }) }).then(refreshQueue);
+  });
+  btn.addEventListener("click", search);
+  input.addEventListener("keydown", function(e) { if (e.key === "Enter") search(); });
+}
+
+/* ---------- Tasks quick-add ---------- */
+
+function setupTasks() {
+  var input = $("taskInput"), btn = $("taskAdd");
+  function add() {
+    var msg = (input.value || "").trim();
+    if (!msg) return;
+    var text = /^(remind|add|create|task|make|set)/i.test(msg) ? msg : "remind me to " + msg;
+    btn.disabled = true; btn.textContent = "…";
+    api("/api/command", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: text }) })
+      .then(function(d) { btn.disabled = false; btn.textContent = "ADD"; input.value = ""; refreshDashboard(); if (d.reply) alert(d.reply); })
+      .catch(function(e) { btn.disabled = false; btn.textContent = "ADD"; alert("Error: " + e.message); });
+  }
+  btn.addEventListener("click", add);
+  input.addEventListener("keydown", function(e) { if (e.key === "Enter") add(); });
+}
+
+/* ---------- Email / services ---------- */
+
+function refreshServices() {
+  api("/api/email/status").then(function(e) {
+    var lines = [];
+    if (e.setup_required) lines.push("Gmail is not configured yet. Set NANGO_SECRET_KEY and NANGO_INTEGRATION_ID.");
+    else if (e.connected) lines.push("Gmail: connected");
+    else if (e.configured) lines.push("Gmail: configured but not connected.");
+    else lines.push("Gmail: not configured.");
+    $("svcStatus").textContent = lines.join(" ");
+    if (e.configured && !e.connected && !e.setup_required) {
+      $("emailLink").innerHTML = '<a class="link-btn" href="/api/email/connect">Connect Gmail</a>';
+    } else {
+      $("emailLink").innerHTML = "";
+    }
+    if (e.connected) {
+      api("/api/email/inbox?limit=3").then(function(data) {
+        var msgs = (data.messages || []).slice(0, 3);
+        $("emailList").innerHTML = msgs.length
+          ? msgs.map(function(m) { return '<div class="email-item"><strong>' + esc(m.subject) + '</strong><span>' + esc(m.from) + (m.unread ? " (unread)" : "") + '</span><small>' + esc(m.snippet || "") + '</small></div>'; }).join("")
+          : '<p class="empty">No recent messages.</p>';
+      }).catch(function() {});
+    } else {
+      $("emailList").innerHTML = "";
+    }
+  }).catch(function() { $("svcStatus").textContent = "Services status unavailable."; });
+}
+
+setupNav();
+refreshStatus();
+refreshDashboard();
+refreshQueue();
+refreshServices();
+setupCommand();
+setupMusic();
+setupTasks();
+seedChat();
+setInterval(refreshStatus, 12000);
+setInterval(refreshDashboard, 15000);
+setInterval(refreshQueue, 20000);

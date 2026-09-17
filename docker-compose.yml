@@ -1,0 +1,40 @@
+services:
+  sdsheetal:
+    build: .
+    image: sdsheetal:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: "8080"
+      SDSHEETAL_DATA: /data
+      WHATSNEW_STORE: /data/whatsmeow.db
+      SD_OWNER_NUMBER: ""
+      SD_VOICE_REPLIES: "false"
+      SD_VOICE_NOTE_REPLIES: "false"
+      SDSHEETAL_TZ: Asia/Kolkata
+      SDSHEETAL_STATION: Sheetal
+      SDSHEETAL_AGENT_TOKEN: ""
+      SPOTIFY_CLIENT_ID: ""
+      SPOTIFY_CLIENT_SECRET: ""
+      SPOTIFY_PLAYLIST_ID: 2JXK0KRt8pLkmUqIPPmmQQ
+      ELEVENLABS_API_KEY: ""
+      ELEVENLABS_VOICE_ID: 7qBNUtXRGP0jPi0H4r8k
+      ELEVENLABS_MODEL_ID: eleven_multilingual_v2
+      SARVAM_API_KEY: ""
+      SARVAM_TTS_SPEAKER: shubh
+      SARVAM_TTS_LANG: hi-IN
+      SARVAM_TTS_MODEL: bulbul:v3
+      SARVAM_STT_MODEL: saaras:v3
+      SARVAM_STT_MODE: transcribe
+      SARVAM_STT_LANG: unknown
+      NANGO_SECRET_KEY: ""
+      NANGO_API_BASE: https://api.nango.dev
+      NANGO_INTEGRATION_ID: gmail
+      NANGO_USER_ID: sheetal
+      SD_WELCOME: ""
+    volumes:
+      - sdsheetal-data:/data
+
+volumes:
+  sdsheetal-data:

@@ -77,7 +77,6 @@ function refreshStatus() {
     }
 
     var chips = "";
-    chips += chip("Spotify", s.spotify);
     if (s.voice_provider === "sarvam") chips += chip("Sarvam voice", true);
     else if (s.voice_provider === "elevenlabs") chips += chip("ElevenLabs voice", true);
     chips += chip("Voice notes (Sarvam STT)", s.stt_ready);

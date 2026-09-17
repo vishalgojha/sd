@@ -11,6 +11,8 @@
 html,body{margin:0;min-width:320px;min-height:100%;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
 body{background-image:radial-gradient(1200px 500px at 80% -10%,rgba(216,255,99,.07),transparent),radial-gradient(900px 400px at -10% 30%,rgba(69,211,155,.06),transparent);background-attachment:fixed}
 .app{display:flex;min-height:100vh}
+.mobile-brand{display:none}
+.mobile-mark{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(145deg,#252a32,#101318);color:#d8ff63;font-size:22px;box-shadow:0 8px 18px rgba(0,0,0,.3)}
 /* ---------- Sidebar ---------- */
 .side{width:230px;flex:0 0 230px;padding:22px 14px;border-right:1px solid var(--line);background:rgba(10,13,18,.82);backdrop-filter:blur(6px);position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
 .brand{display:flex;align-items:center;gap:11px;padding:4px 10px 18px}
@@ -126,6 +128,7 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
 .media{border-bottom-color:var(--line)}.media img{background:#20242b}.icon-btn{border-color:var(--line);background:#171a20;color:#d8dee8}.icon-btn:hover{border-color:#b9c4d2;color:#fff}
 .email-item{border-color:var(--line);background:#171a20}.email-item span,.email-item small{color:var(--muted)}.link-btn{border-color:var(--line);background:#171a20;color:#d8dee8}.link-btn:hover{border-color:#b9c4d2;color:#fff}
 @media(max-width:720px){.mnav{background:rgba(12,14,18,.94);border-top-color:var(--line)}.mnav button{color:#858e9d}.mnav button.active{color:#d8dee8}}
+@media(max-width:720px){.main{padding:18px 16px 92px}.mobile-brand{display:flex;align-items:center;gap:10px;margin:0 0 22px}.mobile-brand strong{display:block;font-size:18px;letter-spacing:-.3px}.mobile-brand .badge{margin-top:2px}.mobile-mark{flex:0 0 38px}.view-title{font-size:21px}.card{border-radius:16px;padding:14px}.thread{min-height:calc(100vh - 390px);max-height:none}.msg{max-width:90%}}
 @media(prefers-reduced-motion:reduce){.avatar,.view.active,.card,.nav button,.qr-wait{animation:none;transition:none}}
 </style>
 </head>
@@ -154,6 +157,7 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
   </nav>
 
   <main class="main">
+    <div class="mobile-brand"><div class="mobile-mark">✦</div><div><strong>Sheetal</strong><span class="badge on">● online</span></div></div>
 
     <!-- STATUS -->
     <section class="view active" id="view-status">
@@ -262,6 +266,6 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
   <button data-view="email"><span class="ic">✉</span>Email</button>
 </nav>
 
-<script src="/app.js?v=20260918-1"></script>
+<script src="/app.js?v=20260918-2"></script>
 </body>
 </html>

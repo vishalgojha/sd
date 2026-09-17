@@ -53,6 +53,22 @@ func (c *Client) SetConnection(conn *Connection) { c.connection = conn }
 
 func (c *Client) Connection() *Connection { return c.connection }
 
+// Disconnect removes the current Nango connection and forgets it locally.
+func (c *Client) Disconnect() error {
+	if c.connection == nil || c.connection.ConnectionID == "" {
+		_, err := c.RefreshConnection()
+		if err != nil {
+			return err
+		}
+	}
+	id := c.connection.ConnectionID
+	if _, err := c.nangoRequest(http.MethodDelete, "/connections/"+url.PathEscape(id), nil, nil); err != nil {
+		return err
+	}
+	c.connection = nil
+	return nil
+}
+
 func (c *Client) nangoRequest(method, path string, payload any, headers map[string]string) ([]byte, error) {
 	if c.cfg.NangoSecretKey == "" {
 		return nil, fmt.Errorf("Nango is not configured")
@@ -100,7 +116,7 @@ func snippet(s string) string {
 func (c *Client) ConnectLink() (string, error) {
 	body, err := c.nangoRequest("POST", "/connect/sessions", map[string]any{
 		"tags": map[string]string{
-			"end_user_id":        c.cfg.NangoUserID,
+			"end_user_id":           c.cfg.NangoUserID,
 			"end_user_display_name": "Sheetal",
 		},
 		"allowed_integrations": []string{c.cfg.NangoIntegration},
@@ -207,8 +223,8 @@ func (c *Client) Messages(query string, limit int) ([]Message, error) {
 			break
 		}
 		detail, err := c.nangoRequest("GET", "/proxy/gmail/v1/users/me/messages/"+url.PathEscape(item.ID)+"?"+url.Values{
-			"format":           {"metadata"},
-			"metadataHeaders":  {"From", "Subject", "Date"},
+			"format":          {"metadata"},
+			"metadataHeaders": {"From", "Subject", "Date"},
 		}.Encode(), nil, headers)
 		if err != nil {
 			continue

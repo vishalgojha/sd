@@ -283,6 +283,12 @@ function refreshServices() {
     $("svcStatus").textContent = lines.join(" ");
     if (e.configured && !e.connected && !e.setup_required) {
       $("emailLink").innerHTML = '<a class="link-btn" href="/api/email/connect">Connect Gmail</a>';
+    } else if (e.connected) {
+      $("emailLink").innerHTML = '<button class="link-btn" id="emailDisconnect" type="button">Disconnect Gmail</button>';
+      $("emailDisconnect").addEventListener("click", function() {
+        if (!confirm("Disconnect this Gmail account from Sheetal?")) return;
+        api("/api/email/disconnect", {method:"POST"}).then(function(){ refreshServices(); refreshStatus(); }).catch(function(err){ alert(err.message); });
+      });
     } else {
       $("emailLink").innerHTML = "";
     }

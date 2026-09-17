@@ -79,6 +79,7 @@ func (s *Server) routes() {
 
 	mux.HandleFunc("/api/email/status", s.emailStatus)
 	mux.HandleFunc("/api/email/connect", s.emailConnect)
+	mux.HandleFunc("/api/email/disconnect", s.emailDisconnect)
 	mux.HandleFunc("/api/email/inbox", s.emailInbox)
 
 	mux.HandleFunc("/api/music/state", s.musicState)
@@ -406,11 +407,30 @@ func (s *Server) emailStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	conn := s.gmail.Connection()
+	if conn == nil {
+		_, _ = s.gmail.RefreshConnection()
+		conn = s.gmail.Connection()
+	}
 	writeJSON(w, http.StatusOK, map[string]any{
 		"configured":     true,
 		"connected":      conn != nil && conn.ConnectionID != "",
 		"setup_required": false,
 	})
+}
+
+func (s *Server) emailDisconnect(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]any{"error": "use POST"})
+		return
+	}
+	if !s.requireAuth(w, r) {
+		return
+	}
+	if err := s.gmail.Disconnect(); err != nil {
+		writeJSON(w, http.StatusBadGateway, map[string]any{"ok": false, "error": err.Error()})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
 }
 
 func (s *Server) emailConnect(w http.ResponseWriter, r *http.Request) {

@@ -235,7 +235,7 @@ func (c *Client) onMessage(evt *events.Message) {
 	// Newer WhatsApp accounts address the "Message yourself" thread using a
 	// LID (e.g. 123…@lid) rather than the phone-number JID. In that case the
 	// sender and chat are the same LID, which is an unambiguous self-chat.
-	if evt.Info.IsFromMe && !selfChat && evt.Info.Sender == evt.Info.Chat && evt.Info.Chat.Server == "lid" {
+	if evt.Info.IsFromMe && !selfChat && evt.Info.Chat.Server == "lid" {
 		selfChat = true
 	}
 	if evt.Info.IsFromMe && !selfChat {

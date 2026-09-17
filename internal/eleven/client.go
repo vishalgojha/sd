@@ -128,6 +128,21 @@ func (c *Client) Chat(ctx context.Context, system, user string) (string, error) 
 			_ = writeJSON(ctx, conn, map[string]any{"type": "pong", "event_id": id})
 		case "client_error":
 			return "", fmt.Errorf("elevenlabs agent error: %s", firstString(event, "message", "error"))
+		case "client_tool_call":
+			// The WhatsApp service is remote from the user's Chrome session. Never
+			// acknowledge a browser action as completed when no local executor is
+			// attached; return an explicit tool error so the hosted agent can tell
+			// the user what is missing instead of hanging on “executing…”.
+			call, _ := event["client_tool_call"].(map[string]any)
+			id := firstString(call, "tool_call_id", "id")
+			if id == "" {
+				id = firstString(event, "tool_call_id", "event_id")
+			}
+			name := firstString(call, "tool_name", "name")
+			_ = writeJSON(ctx, conn, map[string]any{"type": "client_tool_result", "tool_call_id": id, "result": "Browser executor is not connected to this WhatsApp service. No action was performed.", "is_error": true})
+			if name != "" {
+				answer.WriteString("I can’t complete that browser action yet: your local browser executor is offline.")
+			}
 		case "agent_response", "agent_chat_response_part", "agent_response_correction":
 			if s := eventText(event); s != "" {
 				answer.WriteString(s)

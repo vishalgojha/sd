@@ -41,6 +41,8 @@ type Client struct {
 	qrTime  time.Time
 	pairing bool
 	lastErr string
+	sentMu  sync.Mutex
+	sentIDs map[types.MessageID]struct{}
 }
 
 // waLogger implements whatsmeow's waLog.Logger over the standard logger.
@@ -53,7 +55,7 @@ func (waLogger) Errorf(format string, args ...any) { log.Printf("WA: "+format, a
 func (waLogger) Sub(string) waLog.Logger           { return waLog.Noop }
 
 func New(cfg *config.Config, st *store.Store, agent *assistant.Agent, voice *tts.Client, sv *sarvam.Client) *Client {
-	return &Client{cfg: cfg, store: st, agent: agent, tts: voice, sarvam: sv}
+	return &Client{cfg: cfg, store: st, agent: agent, tts: voice, sarvam: sv, sentIDs: make(map[types.MessageID]struct{})}
 }
 
 // StorePath is the sqlite file used for the whatsmeow session.
@@ -226,7 +228,13 @@ func (c *Client) handleEvent(raw any) {
 
 // onMessage handles a single incoming message from a direct chat.
 func (c *Client) onMessage(evt *events.Message) {
-	if evt.Info.IsFromMe {
+	// WhatsApp marks messages sent to your own "Message yourself" chat as
+	// IsFromMe too. Allow those through, but ignore messages the assistant
+	// itself just sent so self-chat cannot create a reply loop.
+	if evt.Info.IsFromMe && !c.isSelfChat(evt.Info.Chat) {
+		return
+	}
+	if evt.Info.IsFromMe && c.wasSent(evt.Info.ID) {
 		return
 	}
 	jid := evt.Info.Chat
@@ -256,7 +264,10 @@ func (c *Client) onMessage(evt *events.Message) {
 		return
 	}
 
-	_, _ = client.SendMessage(context.Background(), jid, textMessage(reply.Text))
+	resp, err := client.SendMessage(context.Background(), jid, textMessage(reply.Text))
+	if err == nil {
+		c.rememberSent(resp.ID)
+	}
 	if c.cfg.VoiceReplies || c.cfg.ReplyVoiceNotes {
 		go c.sendVoiceNote(jid, reply.Text)
 	}
@@ -279,8 +290,11 @@ func (c *Client) handleVoiceNote(evt *events.Message, jid types.JID) {
 	text, err := c.sarvam.Transcribe(context.Background(), "voice"+extFromMIME(mime), mime, data)
 	if err != nil {
 		log.Printf("whatsmeow: transcription failed: %v", err)
-		_, _ = client.SendMessage(context.Background(), jid,
+		resp, sendErr := client.SendMessage(context.Background(), jid,
 			textMessage("I couldn't hear that clearly — could you type it or try again?"))
+		if sendErr == nil {
+			c.rememberSent(resp.ID)
+		}
 		return
 	}
 	text = strings.TrimSpace(text)
@@ -293,7 +307,10 @@ func (c *Client) handleVoiceNote(evt *events.Message, jid types.JID) {
 	if reply.Text == "" {
 		return
 	}
-	_, _ = client.SendMessage(context.Background(), jid, textMessage(reply.Text))
+	resp, err := client.SendMessage(context.Background(), jid, textMessage(reply.Text))
+	if err == nil {
+		c.rememberSent(resp.ID)
+	}
 	if c.cfg.VoiceReplies || c.cfg.ReplyVoiceNotes {
 		go c.sendVoiceNote(jid, reply.Text)
 	}
@@ -323,6 +340,30 @@ func (c *Client) allowed(jid types.JID) bool {
 		return true
 	}
 	return normalizeNumber(jid.User) == owner
+}
+
+func (c *Client) isSelfChat(jid types.JID) bool {
+	phone := c.PhoneNumber()
+	return phone != "" && normalizeNumber(jid.User) == normalizeNumber(phone)
+}
+
+func (c *Client) rememberSent(id types.MessageID) {
+	if id == "" {
+		return
+	}
+	c.sentMu.Lock()
+	c.sentIDs[id] = struct{}{}
+	c.sentMu.Unlock()
+}
+
+func (c *Client) wasSent(id types.MessageID) bool {
+	c.sentMu.Lock()
+	defer c.sentMu.Unlock()
+	if _, ok := c.sentIDs[id]; !ok {
+		return false
+	}
+	delete(c.sentIDs, id)
+	return true
 }
 
 func normalizeNumber(s string) string {
@@ -387,8 +428,11 @@ func (c *Client) sendVoiceNote(to types.JID, text string) {
 			DirectPath:    &resp.DirectPath,
 		},
 	}
-	if _, err := client.SendMessage(context.Background(), to, msg); err != nil {
+	sendResp, err := client.SendMessage(context.Background(), to, msg)
+	if err != nil {
 		log.Printf("whatsapp: voice note send failed: %v", err)
+	} else {
+		c.rememberSent(sendResp.ID)
 	}
 }
 

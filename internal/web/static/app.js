@@ -54,8 +54,23 @@ function refreshStatus() {
     $("waStatus").textContent = s.last_error ? ("Last error: " + s.last_error) : (s.pairing ? "Pairing in progress - scan the QR with WhatsApp." : "");
 
     if (s.pairing && !s.logged_in) {
-      $("qrBox").innerHTML = '<img alt="WhatsApp pairing QR" src="/api/whatsapp/qr.png?t=' + Date.now() + '">';
-      setTimeout(refreshStatus, 4000);
+      var qrBox = $("qrBox");
+      // Keep a displayed QR stable while the status endpoint polls. During
+      // startup the QR endpoint can briefly return 404; show a useful state
+      // and retry instead of leaving a blank box or flickering every 4s.
+      if (!qrBox.querySelector("img")) {
+        qrBox.innerHTML = '<p class="empty qr-wait">Waiting for WhatsApp QR…<br><small>This usually appears within a few seconds.</small></p>';
+        var qrImg = new Image();
+        qrImg.alt = "WhatsApp pairing QR";
+        qrImg.onload = function() {
+          qrBox.replaceChildren(qrImg);
+        };
+        qrImg.onerror = function() {
+          qrImg.remove();
+          setTimeout(refreshStatus, 5000);
+        };
+        qrImg.src = "/api/whatsapp/qr.png?t=" + Date.now();
+      }
     } else if (!s.logged_in) {
       $("qrBox").innerHTML = '<p class="empty">Not paired - WhatsApp will request a scan when the app starts.</p>';
     } else {

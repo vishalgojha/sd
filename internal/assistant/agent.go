@@ -121,7 +121,7 @@ func memoryTexts(entries []store.MemoryEntry, n int) []string {
 func (a *Agent) Help() Reply {
 	lines := []string{
 		"Hi — I'm your WhatsApp assistant. You can text me things like:",
-		"• Tasks: \"remind me to call mom\", \"what's pending?\"",
+		"• Tasks: \"remind me to call mom\", \"what's pending?\" (I save these in your task list.)",
 		"• Notes: \"note: pharmacy closes at 9\", \"my notes\"",
 		"• Shopping: \"add milk and eggs\", \"shopping list\"",
 		"• Plans: \"plan my day: walk, groceries, chores\"",
@@ -312,7 +312,7 @@ func (a *Agent) handleTasks(raw, text string) (Reply, bool) {
 		if err != nil {
 			return Reply{Text: "Sorry, I couldn't save that task.", Tool: "create_task"}, true
 		}
-		return Reply{Text: fmt.Sprintf("Got it — I added \"%s\" to your tasks.", t.Title), Tool: "create_task"}, true
+		return Reply{Text: fmt.Sprintf("Got it, Sheetal — I saved \"%s\" in your task list.", t.Title), Tool: "create_task"}, true
 	}
 
 	if matchesAny(text, []string{"complete task", "mark done", "task done", "complete:", "done task", "mark as done", "finished task", "पूरा हो गया", "हो गया"}) {

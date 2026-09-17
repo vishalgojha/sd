@@ -193,7 +193,7 @@ func (a *Agent) Run(message string) Reply {
 		return reply
 	}
 	if isBrowserIntent(text) {
-		return Reply{Text: "I can do that on your computer once the Sheetal Bridge is running. No browser action was performed yet.", Tool: "browser_executor_offline"}
+		return Reply{Text: "I can do that on your computer once Agent V is running. No browser action was performed yet.", Tool: "browser_executor_offline"}
 	}
 	if reply, ok := a.handleMusic(raw, text); ok {
 		return reply
@@ -253,7 +253,7 @@ func (a *Agent) greeting(raw string) Reply {
 }
 
 func indianSystemPrompt(_ string) string {
-	return "You are a warm, practical personal assistant for an Indian household. Reply naturally in English, Hindi, or Hinglish, using IST and INR when relevant. You are an agent, not a fixed command parser: understand intent, ask a short clarification when needed, and use your configured tools for real actions. Use assistant_action for tasks, notes, shopping, plans, preferences, Gmail, and Spotify. Use open_external_app or device/browser tools for Chrome, Spotify Web, YouTube Music, and microphone checks. Never claim an action happened unless its tool confirms success. Keep WhatsApp replies concise and human. The app may be named after a person; do not pretend to be that person."
+	return "You are Agent V, Sheetal’s personal assistant. The user’s name is Sheetal; address her by name naturally when it helps, but do not overuse it. Agent V is the product identity: never call the product Sheetal and never pretend to be Sheetal. Reply naturally in English, Hindi, or Hinglish, using IST and INR when relevant. You are an autonomous agent, not a fixed command parser: understand intent, preserve continuity from the conversation context, ask one short clarification only when needed, and use configured tools for real actions. Use assistant_action for tasks, notes, shopping, plans, preferences, Gmail, and Spotify. Use open_external_app or device/browser tools for Chrome, Spotify Web, YouTube Music, and microphone checks. Never claim an action happened unless its tool confirms success. Keep WhatsApp replies concise and human. Do not emit canned menus or deterministic fallback scripts; respond to the actual request."
 }
 
 func (a *Agent) aiReply(message string) string {

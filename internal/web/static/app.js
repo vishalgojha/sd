@@ -105,38 +105,73 @@ function confirmAction(message, onOk) { var o=$("confirmOverlay"); $("confirmTex
 
 /* ---------- Chat ---------- */
 
-function appendMsg(role, text) {
+var chatSessions = [];
+var activeChatId = "";
+var CHAT_STORE = "sdchat_sessions_v1";
+function chatId() { return "chat-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7); }
+function chatTitle(session) { var first = (session.messages || []).find(function(m) { return m.role === "user" && m.text; }); return first ? first.text.replace(/\s+/g, " ").slice(0, 38) : "New task"; }
+function persistSessions() { try { localStorage.setItem(CHAT_STORE, JSON.stringify(chatSessions.slice(-50))); } catch (_) {} }
+function formatChatDate(value) { var d = new Date(value || Date.now()); if (isNaN(d.getTime())) return ""; return d.toLocaleDateString([], {month:"short", day:"numeric"}) + " · " + d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}); }
+function renderChatHistory() {
+  var list = $("historyList"); if (!list) return;
+  $("historyCount").textContent = chatSessions.length ? String(chatSessions.length) : "";
+  list.innerHTML = chatSessions.slice().reverse().map(function(s) { return '<button class="history-item' + (s.id === activeChatId ? ' active' : '') + '" type="button" data-chat-id="' + esc(s.id) + '"><strong>' + esc(chatTitle(s)) + '</strong><small>' + esc(formatChatDate(s.updatedAt || s.createdAt)) + '</small></button>'; }).join("") || '<div class="history-empty">Your conversations will appear here.</div>';
+}
+function activeChat() { return chatSessions.find(function(s) { return s.id === activeChatId; }); }
+function createChat(withWelcome) {
+  var now = new Date().toISOString();
+  var session = {id:chatId(), createdAt:now, updatedAt:now, messages:[]};
+  chatSessions.push(session); activeChatId = session.id; $("thread").replaceChildren();
+  if (withWelcome !== false) appendMsg("bot", "Good to see you, Sheetal. What would you like Agent V to take care of?"); else { persistSessions(); renderChatHistory(); }
+  return session;
+}
+function switchChat(id) {
+  var session = chatSessions.find(function(s) { return s.id === id; }); if (!session) return;
+  activeChatId = id; $("thread").replaceChildren();
+  (session.messages || []).forEach(function(row) { appendMsg(row.role === "user" ? "user" : "bot", row.text || "", {persist:false, time:row.time}); });
+  renderChatHistory();
+}
+
+function appendMsg(role, text, options) {
+  options = options || {};
   var thread = $("thread");
   var el = document.createElement("div");
   el.className = "msg " + role;
   el.textContent = text;
   var t = document.createElement("span");
   t.className = "t";
-  t.textContent = nowTime();
+  t.textContent = options.time || nowTime();
   el.appendChild(t);
   var actions = document.createElement("div"); actions.className = "msg-actions";
   var copy = document.createElement("button"); copy.type="button"; copy.className="icon-btn"; copy.textContent="⧉"; copy.title="Copy"; copy.onclick=function(){ navigator.clipboard.writeText(text).then(function(){toast("Copied!");}); }; actions.appendChild(copy);
-  if (role === "bot") { var retry=document.createElement("button"); retry.type="button"; retry.className="icon-btn"; retry.textContent="↻"; retry.title="Retry"; retry.setAttribute("aria-label","Retry response"); retry.onclick=function(){ var rows=JSON.parse(localStorage.getItem("sdchat_history_v3")||"[]"); var last=rows.filter(function(x){return x.role==="user";}).pop(); if(last){ $("cmdInput").value=last.text; $("cmdSend").click(); } }; actions.appendChild(retry); }
+  if (role === "bot") { var retry=document.createElement("button"); retry.type="button"; retry.className="icon-btn"; retry.textContent="↻"; retry.title="Retry"; retry.setAttribute("aria-label","Retry response"); retry.onclick=function(){ var session=activeChat(); var rows=(session && session.messages) || []; var last=rows.filter(function(x){return x.role==="user";}).pop(); if(last){ $("cmdInput").value=last.text; $("cmdSend").click(); } }; actions.appendChild(retry); }
   if (role === "user") { var edit=document.createElement("button"); edit.type="button"; edit.className="icon-btn"; edit.textContent="✎"; edit.title="Edit"; edit.setAttribute("aria-label","Edit message"); edit.onclick=function(){ $("cmdInput").value=text; $("cmdInput").focus(); toast("Ready to edit"); }; actions.appendChild(edit); }
   el.appendChild(actions);
   thread.appendChild(el);
   thread.scrollTop = thread.scrollHeight;
-  saveChat();
+  if (options.persist !== false) saveChat();
   return el;
 }
 
 function saveChat() {
+  var session = activeChat(); if (!session) return;
   var rows = Array.from(document.querySelectorAll("#thread .msg")).map(function(el) {
     var t = el.querySelector(".t");
     return { role: el.classList.contains("user") ? "user" : "bot", text: (el.firstChild && el.firstChild.nodeValue) || el.textContent.replace(t ? t.textContent : "", "").trim(), time: t ? t.textContent : "" };
   });
-  try { localStorage.setItem("sdchat_history_v3", JSON.stringify(rows.slice(-100))); } catch (_) {}
+  session.messages = rows.slice(-100); session.updatedAt = new Date().toISOString(); persistSessions(); renderChatHistory();
 }
 
 function loadChat() {
-  var rows = [];
-  try { rows = JSON.parse(localStorage.getItem("sdchat_history_v3") || "[]"); } catch (_) {}
-  rows.forEach(function(row) { appendMsg(row.role === "user" ? "user" : "bot", row.text || ""); });
+  try { chatSessions = JSON.parse(localStorage.getItem(CHAT_STORE) || "[]"); } catch (_) { chatSessions = []; }
+  if (!Array.isArray(chatSessions)) chatSessions = [];
+  chatSessions = chatSessions.filter(function(s) { return s && s.id && Array.isArray(s.messages); });
+  if (!chatSessions.length) {
+    var legacy = []; try { legacy = JSON.parse(localStorage.getItem("sdchat_history_v3") || "[]"); } catch (_) {}
+    var now = new Date().toISOString(); chatSessions.push({id:chatId(), createdAt:now, updatedAt:now, messages:legacy});
+  }
+  activeChatId = chatSessions[chatSessions.length - 1].id; switchChat(activeChatId);
+  if (!activeChat().messages.length) appendMsg("bot", "Good to see you, Sheetal. What would you like Agent V to take care of?");
 }
 
 function setupCommand() {
@@ -166,17 +201,14 @@ function setupCommand() {
   input.addEventListener("keydown", function(e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(); } });
 }
 
-function seedChat() {
-  if (!localStorage.getItem("sdchat_history_v3")) {
-    appendMsg("bot", "Good to see you, Sheetal. What would you like Agent V to take care of?");
-    localStorage.setItem("sdchat_history_v3", localStorage.getItem("sdchat_history_v3") || "[]");
-  }
-}
-
 function setupNewChat() {
   $("newChatBtn").addEventListener("click", function() {
-    appendMsg("bot", "New task started. What should we work on?");
+    createChat(true);
     $("cmdInput").focus();
+  });
+  $("historyList").addEventListener("click", function(e) {
+    var item = e.target.closest("[data-chat-id]");
+    if (item) switchChat(item.dataset.chatId);
   });
 }
 
@@ -324,6 +356,5 @@ setupCommand();
 loadChat();
 setupNewChat();
 setupTasks();
-seedChat();
 setInterval(refreshStatus, 12000);
 setInterval(refreshDashboard, 15000);

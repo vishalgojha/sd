@@ -33,6 +33,7 @@ body{background-image:radial-gradient(1200px 500px at 80% -10%,rgba(216,255,99,.
 .side .foot{margin-top:auto;color:var(--muted);font-size:10px;padding:10px 12px 0}
 /* ---------- Main ---------- */
 .main{flex:1;min-width:0;padding:30px 26px 60px;max-width:1080px;margin:0 auto}
+.main:has(#view-chat.active){max-width:none}
 .view{display:none}
 .view.active{display:block;animation:fade .42s cubic-bezier(.2,.8,.2,1)}
 @keyframes fade{from{opacity:0;transform:translateY(12px) scale(.99)}to{opacity:1;transform:none}}
@@ -71,6 +72,19 @@ h2.view-title{margin:0 0 6px;font-size:22px;letter-spacing:-.5px}
 .list em{font-style:normal;color:var(--muted);font-size:11px;white-space:nowrap}
 .empty{color:var(--muted);font-size:12px;padding:8px 0}
 /* ---------- Chat ---------- */
+.chat-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:14px;min-height:calc(100vh - 250px)}
+.chat-history{display:flex;flex-direction:column;min-height:0;padding:12px 10px;background:rgba(18,21,26,.72);border:1px solid var(--line);border-radius:18px}
+.chat-history-head{display:flex;align-items:center;justify-content:space-between;padding:2px 4px 10px}
+.chat-history-head h3{margin:0;font-size:12px;letter-spacing:.2px}
+.chat-history-head span{color:var(--muted);font-size:10px}
+.history-list{display:flex;flex-direction:column;gap:4px;overflow-y:auto;margin:0 -3px;padding:0 3px;list-style:none}
+.history-item{display:block;width:100%;padding:10px 9px;border:1px solid transparent;border-radius:11px;background:transparent;color:var(--muted);font:inherit;text-align:left;cursor:pointer}
+.history-item:hover{background:#1b1f26;color:var(--ink)}
+.history-item.active{background:#20252d;border-color:#343b47;color:var(--ink)}
+.history-item strong{display:block;overflow:hidden;font-size:11px;font-weight:700;text-overflow:ellipsis;white-space:nowrap}
+.history-item small{display:block;margin-top:4px;color:#737d8c;font-size:9px}
+.history-empty{padding:14px 8px;color:var(--muted);font-size:11px;line-height:1.4}
+.chat-card{min-width:0;margin:0;min-height:0}
 .thread{display:flex;flex-direction:column;gap:10px;padding:4px 4px;max-height:none;min-height:0;overflow-y:auto;margin-bottom:14px;flex:1}
 .msg{max-width:65%;padding:10px 13px;border-radius:16px;font-size:13.5px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word;position:relative}
 .msg .t{display:block;margin-top:5px;font-size:9.5px;color:var(--muted)}
@@ -135,6 +149,8 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
 @media(max-width:720px){.view#view-chat .card{height:calc(100dvh - 156px);min-height:calc(100dvh - 156px);margin-bottom:0}.view#view-chat .thread{padding:2px 0 8px}.view#view-chat .cmd-row{flex:0 0 auto}.view#view-chat .cmd-row textarea{min-height:58px}}
 .view#view-chat .card{min-height:calc(100vh - 250px);display:flex;flex-direction:column}.view#view-chat .cmd-row{margin-top:auto}.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.68);display:grid;place-items:center;z-index:100;padding:20px}.confirm-overlay[hidden]{display:none}.confirm-card{width:min(380px,100%);background:#1b1f27;border:1px solid #343b48;border-radius:16px;padding:22px;box-shadow:0 24px 70px rgba(0,0,0,.55)}.confirm-card h3{margin:0 0 8px;font-size:16px}.confirm-card p{margin:0 0 18px;color:var(--muted);font-size:13px;line-height:1.5}.confirm-actions{display:flex;justify-content:flex-end;gap:8px}.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,16px);opacity:0;pointer-events:none;background:#d8dee8;color:#0c0e11;border-radius:10px;padding:11px 15px;font-size:12px;font-weight:700;z-index:110;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
 @media(max-width:720px){.view#view-chat .thread{min-height:0}.view#view-chat .card{height:calc(100dvh - 156px);min-height:calc(100dvh - 156px)}}
+@media(max-width:900px) and (min-width:721px){.chat-layout{grid-template-columns:190px minmax(0,1fr)}}
+@media(max-width:720px){.chat-layout{display:block;min-height:0}.chat-history{margin-bottom:10px;min-height:0}.history-list{flex-direction:row;overflow-x:auto;overflow-y:hidden;padding-bottom:2px}.history-item{flex:0 0 170px}.history-empty{padding:8px}.chat-card{height:calc(100dvh - 248px)!important;min-height:calc(100dvh - 248px)!important}}
 </style>
 </head>
 <body>
@@ -188,11 +204,17 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
       <div class="eyebrow">COMMAND CONSOLE</div>
       <div style="display:flex;align-items:center;gap:10px"><h2 class="view-title" style="flex:1">Chat</h2><button id="newChatBtn" class="btn ghost" type="button">NEW TASK</button></div>
       <p class="view-sub">Tell Agent V what you need. It understands English, Hindi, and Hinglish.</p>
-      <div class="card">
-        <div class="thread" id="thread"></div>
-        <div class="cmd-row">
-          <textarea id="cmdInput" rows="3" autocomplete="off" placeholder="Tell Agent V… (Enter to send, Shift+Enter for a new line)" aria-label="Assistant command"></textarea>
-          <button id="cmdSend" class="btn" type="button">SEND</button>
+      <div class="chat-layout">
+        <aside class="chat-history" aria-label="Chat history">
+          <div class="chat-history-head"><h3>Chat history</h3><span id="historyCount"></span></div>
+          <div class="history-list" id="historyList"></div>
+        </aside>
+        <div class="card chat-card">
+          <div class="thread" id="thread"></div>
+          <div class="cmd-row">
+            <textarea id="cmdInput" rows="3" autocomplete="off" placeholder="Tell Agent V… (Enter to send, Shift+Enter for a new line)" aria-label="Assistant command"></textarea>
+            <button id="cmdSend" class="btn" type="button">SEND</button>
+          </div>
         </div>
       </div>
     </section>
@@ -274,6 +296,6 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
 </nav>
 
 <div class="confirm-overlay" id="confirmOverlay" hidden><div class="confirm-card" role="dialog" aria-modal="true"><h3>Sheetal’s assistant</h3><p id="confirmText"></p><div class="confirm-actions"><button class="btn ghost" id="confirmCancel" type="button">Cancel</button><button class="btn" id="confirmOk" type="button">Disconnect</button></div></div></div><div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="/app.js?v=20260918-6"></script>
+<script src="/app.js?v=20260918-7"></script>
 </body>
 </html>

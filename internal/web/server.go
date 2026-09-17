@@ -66,6 +66,7 @@ func (s *Server) routes() {
 
 	// WhatsApp pairing / status
 	mux.HandleFunc("/api/whatsapp/status", s.status)
+	mux.HandleFunc("/api/whatsapp/disconnect", s.whatsappDisconnect)
 	mux.HandleFunc("/api/whatsapp/qr.png", s.qrPNG)
 	mux.HandleFunc("/api/command", s.command)
 
@@ -250,6 +251,13 @@ func (s *Server) status(w http.ResponseWriter, r *http.Request) {
 		"spotify":        s.spot.Enabled(),
 		"gmail":          s.gmail.Enabled(),
 	})
+}
+
+func (s *Server) whatsappDisconnect(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost { writeJSON(w, http.StatusMethodNotAllowed, map[string]any{"error":"use POST"}); return }
+	if !s.requireAuth(w, r) { return }
+	s.wa.Disconnect()
+	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
 }
 
 func (s *Server) qrPNG(w http.ResponseWriter, r *http.Request) {

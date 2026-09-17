@@ -156,6 +156,7 @@ func (c *Client) RefreshConnection() (string, error) {
 		return "", fmt.Errorf("Nango integration not configured")
 	}
 	params := url.Values{}
+	params.Set("provider_config_key", c.cfg.NangoIntegration)
 	params.Set("tags[end_user_id]", c.cfg.NangoUserID)
 	params.Set("limit", "20")
 	body, err := c.nangoRequest("GET", "/connections?"+params.Encode(), nil, nil)

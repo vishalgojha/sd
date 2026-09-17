@@ -82,6 +82,12 @@ function refreshStatus() {
     chips += chip("Voice notes (Sarvam STT)", s.stt_ready);
     chips += chip("Gmail", s.gmail);
     $("capChips").innerHTML = chips;
+    $("connectionActions").innerHTML = s.logged_in ? '<button class="link-btn" id="waDisconnect" type="button">Disconnect WhatsApp</button>' : '';
+    var waBtn = $("waDisconnect");
+    if (waBtn) waBtn.addEventListener("click", function() {
+      if (!confirm("Disconnect WhatsApp from this assistant? You can pair it again later.")) return;
+      api("/api/whatsapp/disconnect", {method:"POST"}).then(refreshStatus).catch(function(e){ alert(e.message); });
+    });
   }).catch(function(e) {
     pill($("pillLogin"), "Offline", "err");
     pill($("pillConn"), "Unreachable", "err");

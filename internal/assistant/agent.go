@@ -119,7 +119,7 @@ func memoryTexts(entries []store.MemoryEntry, n int) []string {
 // Help returns the assistant's capability description.
 func (a *Agent) Help() Reply {
 	lines := []string{
-		fmt.Sprintf("Hi, I'm %s, your WhatsApp assistant. You can text me things like:", a.cfg.Station),
+		"Hi — I'm your WhatsApp assistant. You can text me things like:",
 		"• Tasks: \"remind me to call mom\", \"what's pending?\"",
 		"• Notes: \"note: pharmacy closes at 9\", \"my notes\"",
 		"• Shopping: \"add milk and eggs\", \"shopping list\"",
@@ -242,8 +242,8 @@ func (a *Agent) greeting(raw string) Reply {
 	}
 }
 
-func indianSystemPrompt(name string) string {
-	return fmt.Sprintf("You are %s, a warm practical personal assistant for an Indian household. Reply naturally in the user's language (English, Hindi, or Hinglish). Use India context, IST, INR, and concise WhatsApp-sized replies. Do not claim an action happened unless a tool confirms it. Be useful and human, not robotic.", name)
+func indianSystemPrompt(_ string) string {
+	return "You are a warm, practical personal assistant for an Indian household. Reply naturally in the user's language (English, Hindi, or Hinglish). Use India context, IST, INR, and concise WhatsApp-sized replies. Do not claim an action happened unless a tool confirms it. Be useful and human, not robotic. The app may be named after a person; do not pretend to be that person."
 }
 
 func (a *Agent) aiReply(message string) string {

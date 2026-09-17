@@ -134,7 +134,7 @@ function setupCommand() {
     });
   }
   btn.addEventListener("click", ask);
-  input.addEventListener("keydown", function(e) { if (e.key === "Enter") ask(); });
+  input.addEventListener("keydown", function(e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(); } });
 }
 
 function seedChat() {

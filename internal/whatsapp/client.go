@@ -14,11 +14,11 @@ import (
 	"github.com/skip2/go-qrcode"
 	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/proto/waE2E"
+	wastore "go.mau.fi/whatsmeow/store"
 	"go.mau.fi/whatsmeow/store/sqlstore"
 	"go.mau.fi/whatsmeow/types"
 	"go.mau.fi/whatsmeow/types/events"
 	waLog "go.mau.fi/whatsmeow/util/log"
-	wastore "go.mau.fi/whatsmeow/store"
 
 	"github.com/vishalgojha/sdsheetal/internal/assistant"
 	"github.com/vishalgojha/sdsheetal/internal/config"
@@ -231,17 +231,24 @@ func (c *Client) onMessage(evt *events.Message) {
 	// WhatsApp marks messages sent to your own "Message yourself" chat as
 	// IsFromMe too. Allow those through, but ignore messages the assistant
 	// itself just sent so self-chat cannot create a reply loop.
-	if evt.Info.IsFromMe && !c.isSelfChat(evt.Info.Chat) {
+	selfChat := evt.Info.IsFromMe && c.isSelfChat(evt.Info.Chat)
+	// Newer WhatsApp accounts address the "Message yourself" thread using a
+	// LID (e.g. 123…@lid) rather than the phone-number JID. In that case the
+	// sender and chat are the same LID, which is an unambiguous self-chat.
+	if evt.Info.IsFromMe && !selfChat && evt.Info.Sender == evt.Info.Chat && evt.Info.Chat.Server == "lid" {
+		selfChat = true
+	}
+	if evt.Info.IsFromMe && !selfChat {
 		return
 	}
 	if evt.Info.IsFromMe && c.wasSent(evt.Info.ID) {
 		return
 	}
 	jid := evt.Info.Chat
-	if jid.Server != types.DefaultUserServer {
+	if jid.Server != types.DefaultUserServer && !selfChat {
 		return // only DMs; groups ignored
 	}
-	if !c.allowed(jid) {
+	if !selfChat && !c.allowed(jid) {
 		return
 	}
 	if evt.Message == nil {

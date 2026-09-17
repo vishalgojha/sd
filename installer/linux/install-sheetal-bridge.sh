@@ -5,6 +5,8 @@ SERVER="${SHEETAL_SERVER:-https://sd.vishalojha.me}"
 BASE="${XDG_CONFIG_HOME:-$HOME/.config}/agent-v"
 BIN="$HOME/.local/bin/agent-v"
 mkdir -p "$BASE" "$HOME/.local/bin" "$HOME/.config/systemd/user"
+systemctl --user disable --now sheetal-bridge.service 2>/dev/null || true
+rm -f "$HOME/.config/systemd/user/default.target.wants/sheetal-bridge.service"
 read -r -p "Paste your Agent V token (leave blank if not enabled): " TOKEN
 curl -fL "$SERVER/downloads/agent-v-linux-amd64" -o "$BIN"
 chmod 700 "$BIN"

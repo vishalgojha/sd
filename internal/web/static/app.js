@@ -171,8 +171,6 @@ function seedChat() {
 
 function setupNewChat() {
   $("newChatBtn").addEventListener("click", function() {
-    $("thread").replaceChildren();
-    try { localStorage.removeItem("sdchat_history_v2"); } catch (_) {}
     appendMsg("bot", "New task started. What should we work on?");
     $("cmdInput").focus();
   });

@@ -206,13 +206,7 @@ func (a *Agent) Run(message string) Reply {
 		return Reply{Text: aiText, Tool: "ai_chat"}
 	}
 	return Reply{
-		Text: `I understood that only loosely. Try one of these:
-• "remind me to buy a gift for Charvi"
-• "add 2 litres milk to shopping"
-• "save a note: Aarti's recital is on Friday"
-• "play some calm music"
-• "what's my plan today?"
-• "help"`,
+		Text: "I’m not fully sure what you want yet. Tell me in your own words — Hindi, English, or Hinglish is fine — and I’ll ask a quick follow-up if I need more detail.",
 		Tool: "fallback",
 	}
 }

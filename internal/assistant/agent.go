@@ -123,7 +123,7 @@ func memoryTexts(entries []store.MemoryEntry, n int) []string {
 func (a *Agent) Help() Reply {
 	lines := []string{
 		"Hi — I'm your WhatsApp assistant. You can text me things like:",
-		"• Tasks: \"remind me to call mom\", \"what's pending?\" (I save these in your task list.)",
+		"• Tasks: \"remind me to call dad\", \"what's pending?\" (I save these in your task list.)",
 		"• Notes: \"note: pharmacy closes at 9\", \"my notes\"",
 		"• Shopping: \"add milk and eggs\", \"shopping list\"",
 		"• Plans: \"plan my day: walk, groceries, chores\"",

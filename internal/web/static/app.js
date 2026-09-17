@@ -153,7 +153,7 @@ function setupCommand() {
 
 function seedChat() {
   if (!localStorage.getItem("sdchat_history_v2")) {
-    appendMsg("bot", "Hi — tell me what you need in your own words. I can help with plans, reminders, shopping, Gmail, and actions on your computer.");
+    appendMsg("bot", "Hi — I’m Sheetal’s personal assistant. Tell me what you need in your own words and I’ll help with plans, reminders, shopping, Gmail, and actions on her computer.");
     localStorage.setItem("sdchat_seeded", "1");
   }
 }

@@ -1,6 +1,6 @@
-const CACHE = "agent-v-shell-v1";
+const CACHE = "agent-v-shell-v2";
 self.addEventListener("install", event => {
-  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(["/", "/app.js?v=20260918-8", "/manifest.webmanifest"])));
+  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(["/", "/app.js?v=20260918-9", "/manifest.webmanifest"])));
   self.skipWaiting();
 });
 self.addEventListener("activate", event => event.waitUntil(self.clients.claim()));

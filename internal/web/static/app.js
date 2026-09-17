@@ -101,7 +101,7 @@ function chip(label, on) {
   return '<span class="chip' + (on ? " ok" : "") + '"><b></b>' + esc(label) + (on ? " on" : " off") + "</span>";
 }
 function toast(message) { var el=$("toast"); if(!el) return; el.textContent=message; el.classList.add("show"); clearTimeout(window.__toastTimer); window.__toastTimer=setTimeout(function(){el.classList.remove("show");},3200); }
-function confirmAction(message, onOk) { var o=$("confirmOverlay"); $("confirmText").textContent=message; o.hidden=false; var close=function(){o.hidden=true;}; $("confirmCancel").onclick=close; $("confirmOk").onclick=function(){close();onOk();}; }
+function confirmAction(message, onOk, label) { var o=$("confirmOverlay"); $("confirmText").textContent=message; $("confirmOk").textContent=label || "Disconnect"; o.hidden=false; var close=function(){o.hidden=true;}; $("confirmCancel").onclick=close; $("confirmOk").onclick=function(){close();onOk();}; }
 
 /* ---------- Chat ---------- */
 
@@ -116,7 +116,7 @@ function formatChatDate(value) { var d = new Date(value || Date.now()); if (isNa
 function renderChatHistory() {
   var list = $("historyList"); if (!list) return;
   $("historyCount").textContent = chatSessions.length ? String(chatSessions.length) : "";
-  list.innerHTML = chatSessions.slice().reverse().map(function(s) { return '<div class="history-row"><button class="history-item' + (s.id === activeChatId ? ' active' : '') + '" type="button" data-chat-id="' + esc(s.id) + '"><strong>' + esc(chatTitle(s)) + '</strong><small>' + esc(chatPreview(s)) + ' · ' + esc(formatChatDate(s.updatedAt || s.createdAt)) + '</small></button><div class="history-actions"><button class="icon-btn" type="button" data-chat-action="rename" data-chat-id="' + esc(s.id) + '" title="Rename" aria-label="Rename chat">✎</button><button class="icon-btn" type="button" data-chat-action="delete" data-chat-id="' + esc(s.id) + '" title="Delete" aria-label="Delete chat">×</button></div></div>'; }).join("") || '<div class="history-empty">Your conversations will appear here.</div>';
+  list.innerHTML = chatSessions.slice().reverse().map(function(s) { return '<div class="history-row"><button class="history-item' + (s.id === activeChatId ? ' active' : '') + '" type="button" data-chat-id="' + esc(s.id) + '"><strong>' + esc(chatTitle(s)) + '</strong><small>' + esc(chatPreview(s)) + ' · ' + esc(formatChatDate(s.updatedAt || s.createdAt)) + '</small></button><div class="history-menu"><button class="history-menu-trigger" type="button" data-menu-toggle aria-label="Chat actions">⋯</button><div class="history-menu-list" role="menu"><button type="button" data-chat-action="rename" data-chat-id="' + esc(s.id) + '" role="menuitem">Rename</button><button type="button" data-chat-action="delete" data-chat-id="' + esc(s.id) + '" role="menuitem">Delete</button></div></div></div>'; }).join("") || '<div class="history-empty">Your conversations will appear here.</div>';
 }
 function activeChat() { return chatSessions.find(function(s) { return s.id === activeChatId; }); }
 function createChat(withWelcome) {
@@ -208,6 +208,8 @@ function setupNewChat() {
     $("cmdInput").focus();
   });
   $("historyList").addEventListener("click", function(e) {
+    var toggle = e.target.closest("[data-menu-toggle]");
+    if (toggle) { var menu = toggle.closest(".history-menu"); document.querySelectorAll(".history-menu.open").forEach(function(m) { if (m !== menu) m.classList.remove("open"); }); menu.classList.toggle("open"); return; }
     var action = e.target.closest("[data-chat-action]");
     if (action) {
       var session = chatSessions.find(function(s) { return s.id === action.dataset.chatId; });
@@ -215,15 +217,18 @@ function setupNewChat() {
       if (action.dataset.chatAction === "rename") {
         var name = window.prompt("Rename chat", chatTitle(session));
         if (name && name.trim()) { session.title = name.trim().slice(0, 60); session.updatedAt = new Date().toISOString(); persistSessions(); renderChatHistory(); }
-      } else if (action.dataset.chatAction === "delete" && window.confirm("Delete this chat? This cannot be undone.")) {
-        chatSessions = chatSessions.filter(function(s) { return s.id !== session.id; });
-        if (!chatSessions.length) createChat(true); else if (activeChatId === session.id) switchChat(chatSessions[chatSessions.length - 1].id); else { persistSessions(); renderChatHistory(); }
+      } else if (action.dataset.chatAction === "delete") {
+        confirmAction("Delete this chat? This cannot be undone.", function() {
+          chatSessions = chatSessions.filter(function(s) { return s.id !== session.id; });
+          if (!chatSessions.length) createChat(true); else if (activeChatId === session.id) switchChat(chatSessions[chatSessions.length - 1].id); else { persistSessions(); renderChatHistory(); }
+        }, "Delete");
       }
       return;
     }
     var item = e.target.closest("[data-chat-id]");
     if (item) switchChat(item.dataset.chatId);
   });
+  document.addEventListener("click", function(e) { if (!e.target.closest(".history-menu")) document.querySelectorAll(".history-menu.open").forEach(function(m) { m.classList.remove("open"); }); });
   $("historySearch").addEventListener("input", function() {
     var query = this.value.trim().toLowerCase();
     document.querySelectorAll("#historyList [data-chat-id]").forEach(function(item) {

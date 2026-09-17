@@ -88,7 +88,7 @@ h2.view-title{margin:0 0 6px;font-size:22px;letter-spacing:-.5px}
 .history-item.active{background:#20252d;border-color:#343b47;color:var(--ink)}
 .history-item strong{display:block;overflow:hidden;font-size:11px;font-weight:700;text-overflow:ellipsis;white-space:nowrap}
 .history-item small{display:block;overflow:hidden;margin-top:5px;color:#737d8c;font-size:10px;text-overflow:ellipsis;white-space:nowrap}
-.history-row{position:relative}.history-row .history-actions{position:absolute;right:7px;top:50%;display:flex;gap:3px;opacity:0;transform:translateY(-50%);transition:opacity .15s}.history-row:hover .history-actions,.history-row:focus-within .history-actions{opacity:1}.history-actions .icon-btn{width:25px;height:25px;padding:0;border-radius:7px;background:#171a20;font-size:12px}.history-row .history-item{padding-right:76px}
+.history-row{position:relative}.history-menu{position:absolute;right:7px;top:50%;transform:translateY(-50%)}.history-menu-trigger{width:26px;height:26px;padding:0;border:1px solid transparent;border-radius:7px;background:transparent;color:var(--muted);font-size:16px;line-height:1;cursor:pointer}.history-menu-trigger:hover,.history-menu-trigger:focus{border-color:var(--line);background:#171a20;color:var(--ink)}.history-menu-list{position:absolute;right:0;top:30px;z-index:20;display:none;min-width:110px;padding:4px;border:1px solid var(--line);border-radius:9px;background:#171a20;box-shadow:0 12px 30px rgba(0,0,0,.4)}.history-menu.open .history-menu-list{display:grid;gap:2px}.history-menu-list button{padding:7px 9px;border:0;border-radius:6px;background:transparent;color:var(--ink);font:inherit;font-size:11px;text-align:left;cursor:pointer}.history-menu-list button:hover{background:#252b34}.history-menu-list button:last-child{color:#f09595}.history-row .history-item{padding-right:42px}
 .history-empty{padding:14px 8px;color:var(--muted);font-size:11px;line-height:1.4}
 .chat-card{min-width:0;margin:0;min-height:0}
 .thread{display:flex;flex-direction:column;gap:10px;padding:4px 4px;max-height:none;min-height:0;overflow-y:auto;margin-bottom:14px;flex:1}
@@ -157,7 +157,13 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
 @media(max-width:720px){.view#view-chat .thread{min-height:0}.view#view-chat .card{height:calc(100dvh - 156px);min-height:calc(100dvh - 156px)}}
 @media(max-width:900px) and (min-width:721px){.chat-layout{grid-template-columns:210px minmax(0,1fr)}}
 @media(max-width:720px){.chat-layout{display:block;min-height:0}.chat-history{margin-bottom:10px;min-height:0}.history-list{flex-direction:row;overflow-x:auto;overflow-y:hidden;padding-bottom:2px}.history-item{flex:0 0 170px}.history-empty{padding:8px}.chat-card{height:calc(100dvh - 248px)!important;min-height:calc(100dvh - 248px)!important}}
-@media(max-width:720px){.history-row{flex:0 0 190px}.history-actions{opacity:1!important}}
+@media(max-width:720px){.history-row{flex:0 0 190px}.history-menu-trigger{background:#171a20;border-color:var(--line)}}
+@media(max-width:720px){
+  .view#view-chat .cmd-row{align-items:flex-end;gap:8px}
+  .view#view-chat .cmd-row textarea{min-height:54px;height:54px;padding:10px 11px;font-size:12px}
+  .view#view-chat .cmd-row .btn{height:42px;min-width:62px;padding:0 12px;border-radius:11px;font-size:10px}
+  .view#view-chat #newChatBtn{padding:7px 10px;border-radius:9px;font-size:10px}
+}
 </style>
 </head>
 <body>
@@ -304,7 +310,7 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
 </nav>
 
 <div class="confirm-overlay" id="confirmOverlay" hidden><div class="confirm-card" role="dialog" aria-modal="true"><h3>Sheetal’s assistant</h3><p id="confirmText"></p><div class="confirm-actions"><button class="btn ghost" id="confirmCancel" type="button">Cancel</button><button class="btn" id="confirmOk" type="button">Disconnect</button></div></div></div><div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="/app.js?v=20260918-8"></script>
+<script src="/app.js?v=20260918-9"></script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){});});}</script>
 </body>
 </html>

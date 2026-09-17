@@ -275,6 +275,7 @@ func (c *Client) onMessage(evt *events.Message) {
 	if err == nil {
 		c.rememberSent(resp.ID)
 	}
+	c.store.RecordMemory("conversation", "", "assistant: "+reply.Text)
 	if c.cfg.VoiceReplies || c.cfg.ReplyVoiceNotes {
 		go c.sendVoiceNote(jid, reply.Text)
 	}

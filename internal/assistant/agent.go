@@ -259,15 +259,27 @@ func indianSystemPrompt(_ string) string {
 func (a *Agent) aiReply(message string) string {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
+	prompt := indianSystemPrompt(a.cfg.Station)
+	// Each hosted turn is a fresh session, so provide a short durable window
+	// from the on-disk conversation log for continuity across WhatsApp messages.
+	if m := a.store.Memory(); len(m.Conversations) > 1 {
+		start := len(m.Conversations) - 12
+		if start < 0 { start = 0 }
+		var recent []string
+		for _, entry := range m.Conversations[start:] {
+			if strings.TrimSpace(entry.Text) != "" { recent = append(recent, entry.Text) }
+		}
+		if len(recent) > 0 { prompt += "\nRecent conversation (use only as context):\n" + strings.Join(recent, "\n") }
+	}
 	if a.eleven != nil && a.eleven.Enabled() {
-		if text, err := a.eleven.Chat(ctx, indianSystemPrompt(a.cfg.Station), message); err == nil && strings.TrimSpace(text) != "" {
+		if text, err := a.eleven.Chat(ctx, prompt, message); err == nil && strings.TrimSpace(text) != "" {
 			return strings.TrimSpace(text)
 		} else if err != nil {
 			log.Printf("elevenlabs agent turn failed: %v", err)
 		}
 	}
 	if a.ai != nil && a.ai.Enabled() {
-		if text, err := a.ai.Chat(ctx, indianSystemPrompt(a.cfg.Station), message); err == nil {
+		if text, err := a.ai.Chat(ctx, prompt, message); err == nil {
 			return strings.TrimSpace(text)
 		} else {
 			log.Printf("sarvam chat turn failed: %v", err)

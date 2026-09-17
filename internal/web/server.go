@@ -284,6 +284,7 @@ func (s *Server) command(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	reply := s.agent.Run(body.Message)
+	s.store.RecordMemory("conversation", "", "assistant: "+reply.Text)
 	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "reply": reply.Text, "tool": reply.Tool})
 }
 

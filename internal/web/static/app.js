@@ -116,12 +116,12 @@ function saveChat() {
     var t = el.querySelector(".t");
     return { role: el.classList.contains("user") ? "user" : "bot", text: (el.firstChild && el.firstChild.nodeValue) || el.textContent.replace(t ? t.textContent : "", "").trim(), time: t ? t.textContent : "" };
   });
-  try { localStorage.setItem("sdchat_history", JSON.stringify(rows.slice(-100))); } catch (_) {}
+  try { localStorage.setItem("sdchat_history_v2", JSON.stringify(rows.slice(-100))); } catch (_) {}
 }
 
 function loadChat() {
   var rows = [];
-  try { rows = JSON.parse(localStorage.getItem("sdchat_history") || "[]"); } catch (_) {}
+  try { rows = JSON.parse(localStorage.getItem("sdchat_history_v2") || "[]"); } catch (_) {}
   rows.forEach(function(row) { appendMsg(row.role === "user" ? "user" : "bot", row.text || ""); });
 }
 
@@ -153,8 +153,8 @@ function setupCommand() {
 }
 
 function seedChat() {
-  if (!localStorage.getItem("sdchat_history")) {
-    appendMsg("bot", "Hi, I'm Sheetal. Ask me to remind, note things, add to shopping, plan your day, play music, or check email.");
+  if (!localStorage.getItem("sdchat_history_v2")) {
+    appendMsg("bot", "Hi — tell me what you need in your own words. I can help with plans, reminders, shopping, Gmail, and actions on your computer.");
     localStorage.setItem("sdchat_seeded", "1");
   }
 }
@@ -162,7 +162,7 @@ function seedChat() {
 function setupNewChat() {
   $("newChatBtn").addEventListener("click", function() {
     $("thread").replaceChildren();
-    try { localStorage.removeItem("sdchat_history"); } catch (_) {}
+    try { localStorage.removeItem("sdchat_history_v2"); } catch (_) {}
     appendMsg("bot", "New task started. What should we work on?");
     $("cmdInput").focus();
   });

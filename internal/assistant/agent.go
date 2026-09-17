@@ -192,6 +192,9 @@ func (a *Agent) Run(message string) Reply {
 	if reply, ok := a.handlePlans(raw, text); ok {
 		return reply
 	}
+	if isBrowserIntent(text) {
+		return Reply{Text: "I can do that on your computer once the Sheetal Bridge is running. No browser action was performed yet.", Tool: "browser_executor_offline"}
+	}
 	if reply, ok := a.handleMusic(raw, text); ok {
 		return reply
 	}
@@ -209,6 +212,10 @@ func (a *Agent) Run(message string) Reply {
 		Text: "I’m not fully sure what you want yet. Tell me in your own words — Hindi, English, or Hinglish is fine — and I’ll ask a quick follow-up if I need more detail.",
 		Tool: "fallback",
 	}
+}
+
+func isBrowserIntent(text string) bool {
+	return (strings.Contains(text, "youtube") || strings.Contains(text, "chrome") || strings.Contains(text, "browser") || strings.Contains(text, "spotify web")) && (strings.Contains(text, "play") || strings.Contains(text, "open") || strings.Contains(text, "search") || strings.Contains(text, "check"))
 }
 
 func matchesAny(text string, needles []string) bool {

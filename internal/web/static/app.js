@@ -40,9 +40,9 @@ function refreshStatus() {
     else if (s.pairing) { hdr.className = "badge off"; hdr.textContent = "pairing"; }
     else { hdr.className = "badge off"; hdr.textContent = "offline"; }
 
-    pill($("pillLogin"), s.logged_in ? ("Linked: " + (s.phone || "phone")) : "Not linked", s.logged_in ? "ok" : "warn");
+    pill($("pillLogin"), s.logged_in ? "WhatsApp linked" : "Not linked", s.logged_in ? "ok" : "warn");
     pill($("pillConn"), s.connected ? "Connected" : (s.pairing ? "Pairing" : "Disconnected"), s.connected ? "ok" : (s.pairing ? "warn" : "err"));
-    $("ownerInfo").textContent = s.owner || "no owner set (all chats allowed)";
+    $("ownerInfo").textContent = s.owner ? "Private owner" : "no owner set (all chats allowed)";
 
     var vLabel = s.voice_ready
       ? "Voice: " + (s.voice_provider === "sarvam" ? "Sarvam" : s.voice_provider === "elevenlabs" ? "ElevenLabs" : "on")

@@ -63,6 +63,12 @@ func (s *Server) routes() {
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]any{"ok": true})
 	})
+	mux.HandleFunc("/downloads/SheetalBridge.exe", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "https://github.com/vishalgojha/sd/raw/main/dist/SheetalBridge.exe", http.StatusFound)
+	})
+	mux.HandleFunc("/downloads/sheetal-bridge-linux-amd64", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "https://github.com/vishalgojha/sd/raw/main/dist/sheetal-bridge-linux-amd64", http.StatusFound)
+	})
 
 	// WhatsApp pairing / status
 	mux.HandleFunc("/api/whatsapp/status", s.status)
@@ -423,6 +429,7 @@ func (s *Server) emailStatus(w http.ResponseWriter, r *http.Request) {
 		"configured":     true,
 		"connected":      conn != nil && conn.ConnectionID != "",
 		"setup_required": false,
+		"account_email":  s.cfg.NangoUserEmail,
 	})
 }
 

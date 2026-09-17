@@ -85,8 +85,7 @@ function refreshStatus() {
     $("connectionActions").innerHTML = s.logged_in ? '<button class="link-btn" id="waDisconnect" type="button">Disconnect WhatsApp</button>' : '';
     var waBtn = $("waDisconnect");
     if (waBtn) waBtn.addEventListener("click", function() {
-      if (!confirm("Disconnect WhatsApp from this assistant? You can pair it again later.")) return;
-      api("/api/whatsapp/disconnect", {method:"POST"}).then(refreshStatus).catch(function(e){ alert(e.message); });
+      confirmAction("Disconnect WhatsApp from Sheetal’s assistant? You can pair it again later.", function(){ api("/api/whatsapp/disconnect", {method:"POST"}).then(function(){ toast("WhatsApp disconnected"); refreshStatus(); }).catch(function(e){ toast(e.message); }); });
     });
   }).catch(function(e) {
     pill($("pillLogin"), "Offline", "err");
@@ -98,6 +97,8 @@ function refreshStatus() {
 function chip(label, on) {
   return '<span class="chip' + (on ? " ok" : "") + '"><b></b>' + esc(label) + (on ? " on" : " off") + "</span>";
 }
+function toast(message) { var el=$("toast"); if(!el) return; el.textContent=message; el.classList.add("show"); clearTimeout(window.__toastTimer); window.__toastTimer=setTimeout(function(){el.classList.remove("show");},3200); }
+function confirmAction(message, onOk) { var o=$("confirmOverlay"); $("confirmText").textContent=message; o.hidden=false; var close=function(){o.hidden=true;}; $("confirmCancel").onclick=close; $("confirmOk").onclick=function(){close();onOk();}; }
 
 /* ---------- Chat ---------- */
 
@@ -268,8 +269,8 @@ function setupTasks() {
     var text = /^(remind|add|create|task|make|set)/i.test(msg) ? msg : "remind me to " + msg;
     btn.disabled = true; btn.textContent = "…";
     api("/api/command", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: text }) })
-      .then(function(d) { btn.disabled = false; btn.textContent = "ADD"; input.value = ""; refreshDashboard(); if (d.reply) alert(d.reply); })
-      .catch(function(e) { btn.disabled = false; btn.textContent = "ADD"; alert("Error: " + e.message); });
+      .then(function(d) { btn.disabled = false; btn.textContent = "ADD"; input.value = ""; refreshDashboard(); if (d.reply) toast(d.reply); })
+      .catch(function(e) { btn.disabled = false; btn.textContent = "ADD"; toast("Error: " + e.message); });
   }
   btn.addEventListener("click", add);
   input.addEventListener("keydown", function(e) { if (e.key === "Enter") add(); });
@@ -285,13 +286,13 @@ function refreshServices() {
     else if (e.configured) lines.push("Gmail: configured but not connected.");
     else lines.push("Gmail: not configured.");
     $("svcStatus").textContent = lines.join(" ");
+    $("emailAccount").textContent = e.connected && e.account_email ? "Connected account: " + e.account_email : "";
     if (e.configured && !e.connected && !e.setup_required) {
       $("emailLink").innerHTML = '<a class="link-btn" href="/api/email/connect">Connect Gmail</a>';
     } else if (e.connected) {
       $("emailLink").innerHTML = '<button class="link-btn" id="emailDisconnect" type="button">Disconnect Gmail</button>';
       $("emailDisconnect").addEventListener("click", function() {
-        if (!confirm("Disconnect this Gmail account from Sheetal?")) return;
-        api("/api/email/disconnect", {method:"POST"}).then(function(){ refreshServices(); refreshStatus(); }).catch(function(err){ alert(err.message); });
+        confirmAction("Disconnect this Gmail account from Sheetal’s assistant?", function(){ api("/api/email/disconnect", {method:"POST"}).then(function(){ toast("Gmail disconnected"); refreshServices(); refreshStatus(); }).catch(function(err){ toast(err.message); }); });
       });
     } else {
       $("emailLink").innerHTML = "";

@@ -71,7 +71,7 @@ h2.view-title{margin:0 0 6px;font-size:22px;letter-spacing:-.5px}
 .list em{font-style:normal;color:var(--muted);font-size:11px;white-space:nowrap}
 .empty{color:var(--muted);font-size:12px;padding:8px 0}
 /* ---------- Chat ---------- */
-.thread{display:flex;flex-direction:column;gap:10px;padding:4px 4px;max-height:calc(100vh - 300px);min-height:360px;overflow-y:auto;margin-bottom:14px}
+.thread{display:flex;flex-direction:column;gap:10px;padding:4px 4px;max-height:calc(100vh - 340px);min-height:500px;overflow-y:auto;margin-bottom:14px;flex:1}
 .msg{max-width:78%;padding:10px 13px;border-radius:16px;font-size:13.5px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word;position:relative}
 .msg .t{display:block;margin-top:5px;font-size:9.5px;color:var(--muted)}
 .msg.bot{align-self:flex-start;background:#f4ede6;border-bottom-left-radius:5px;border:1px solid #eee2d6}
@@ -128,8 +128,9 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
 .media{border-bottom-color:var(--line)}.media img{background:#20242b}.icon-btn{border-color:var(--line);background:#171a20;color:#d8dee8}.icon-btn:hover{border-color:#b9c4d2;color:#fff}
 .email-item{border-color:var(--line);background:#171a20}.email-item span,.email-item small{color:var(--muted)}.link-btn{border-color:var(--line);background:#171a20;color:#d8dee8}.link-btn:hover{border-color:#b9c4d2;color:#fff}
 @media(max-width:720px){.mnav{background:rgba(12,14,18,.94);border-top-color:var(--line)}.mnav button{color:#858e9d}.mnav button.active{color:#d8dee8}}
-@media(max-width:720px){.main{padding:18px 16px 92px}.mobile-brand{display:flex;align-items:center;gap:10px;margin:0 0 22px}.mobile-brand strong{display:block;font-size:18px;letter-spacing:-.3px}.mobile-brand .badge{margin-top:2px}.mobile-mark{flex:0 0 38px}.view-title{font-size:21px}.card{border-radius:16px;padding:14px}.thread{min-height:calc(100vh - 390px);max-height:none}.msg{max-width:90%}}
+@media(max-width:720px){.main{padding:18px 16px 92px}.mobile-brand{display:flex;align-items:center;gap:10px;margin:0 0 22px}.mobile-brand strong{display:block;font-size:18px;letter-spacing:-.3px}.mobile-brand .badge{margin-top:2px}.mobile-mark{flex:0 0 38px}.view-title{font-size:21px}.card{border-radius:16px;padding:14px}.thread{min-height:calc(100vh - 300px);max-height:none}.msg{max-width:90%}}
 @media(prefers-reduced-motion:reduce){.avatar,.view.active,.card,.nav button,.qr-wait{animation:none;transition:none}}
+.view#view-chat .card{min-height:calc(100vh - 250px);display:flex;flex-direction:column}.view#view-chat .cmd-row{margin-top:auto}.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.68);display:grid;place-items:center;z-index:100;padding:20px}.confirm-overlay[hidden]{display:none}.confirm-card{width:min(380px,100%);background:#1b1f27;border:1px solid #343b48;border-radius:16px;padding:22px;box-shadow:0 24px 70px rgba(0,0,0,.55)}.confirm-card h3{margin:0 0 8px;font-size:16px}.confirm-card p{margin:0 0 18px;color:var(--muted);font-size:13px;line-height:1.5}.confirm-actions{display:flex;justify-content:flex-end;gap:8px}.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,16px);opacity:0;pointer-events:none;background:#d8dee8;color:#0c0e11;border-radius:10px;padding:11px 15px;font-size:12px;font-weight:700;z-index:110;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
 </style>
 </head>
 <body>
@@ -186,7 +187,7 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
       <div class="card">
         <div class="thread" id="thread"></div>
         <div class="cmd-row">
-          <textarea id="cmdInput" rows="3" autocomplete="off" placeholder="Message Sheetal… (Enter to send, Shift+Enter for a new line)" aria-label="Assistant command"></textarea>
+          <textarea id="cmdInput" rows="3" autocomplete="off" placeholder="Tell Sheetal’s assistant… (Enter to send, Shift+Enter for a new line)" aria-label="Assistant command"></textarea>
           <button id="cmdSend" class="btn" type="button">SEND</button>
         </div>
       </div>
@@ -196,13 +197,13 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
     <section class="view" id="view-tasks">
       <div class="eyebrow">TODAY</div>
       <h2 class="view-title">Tasks &amp; plan</h2>
-      <p class="view-sub">Open tasks and today's plan. Quick-add here runs through the same assistant as WhatsApp.</p>
+      <p class="view-sub">Tasks Sheetal receives on WhatsApp show up here automatically. You can also add one here.</p>
       <div class="card">
         <div class="cmd-row">
           <input id="taskInput" autocomplete="off" placeholder="Add a task, e.g. call Aarti at 7pm" aria-label="Add task">
           <button id="taskAdd" class="btn" type="button">ADD</button>
         </div>
-        <h3 style="margin:16px 0 4px;font-size:13px">Open tasks</h3>
+        <h3 style="margin:16px 0 4px;font-size:13px">From WhatsApp</h3>
         <ul class="list" id="taskList"><li class="empty">Loading…</li></ul>
       </div>
       <div class="card">
@@ -219,10 +220,10 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
       <p class="view-sub">Just ask in the chat or on WhatsApp. You don’t need to remember commands.</p>
       <div class="card">
         <div class="grid two">
-          <div><h3 style="margin:0 0 6px;font-size:14px">Daily life</h3><p class="view-sub">“Remind me to call Mum at 7.”<br>“Add atta and milk to my list.”<br>“Plan my day.”</p></div>
-          <div><h3 style="margin:0 0 6px;font-size:14px">Your services</h3><p class="view-sub">“Check my unread Gmail.”<br>“Play Arijit on my computer.”<br>“Open YouTube and search…”</p></div>
-          <div><h3 style="margin:0 0 6px;font-size:14px">Indian context</h3><p class="view-sub">Ask in Hindi, English, or Hinglish. Sheetal understands IST, local errands, festivals, and INR.</p></div>
-          <div><h3 style="margin:0 0 6px;font-size:14px">Need help?</h3><p class="view-sub">Type “help” or simply describe what you want. Sheetal will ask a question if anything is unclear.</p></div>
+          <div><h3 style="margin:0 0 6px;font-size:14px">Ghar ke kaam</h3><p class="view-sub">“Mum ko 7 baje call yaad dilao.”<br>“Doodh aur atta list mein daal do.”<br>“Aaj ka plan bana do.”</p></div>
+          <div><h3 style="margin:0 0 6px;font-size:14px">WhatsApp se hi</h3><p class="view-sub">WhatsApp par jo task bhejo, woh yahan apne-aap dikh jayega.</p></div>
+          <div><h3 style="margin:0 0 6px;font-size:14px">Gmail aur computer</h3><p class="view-sub">“Mere unread Gmail check karo.”<br>“Chrome kholo.”<br>“YouTube par Arijit chalao.”</p></div>
+          <div><h3 style="margin:0 0 6px;font-size:14px">Jaise mann kare bolo</h3><p class="view-sub">Hindi, English ya Hinglish mein bolo. Sheetal zaroorat padne par pooch legi.</p></div>
         </div>
       </div>
     </section>
@@ -231,7 +232,7 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
     <section class="view" id="view-memory">
       <div class="eyebrow">MEMORY</div>
       <h2 class="view-title">What I remember</h2>
-      <p class="view-sub">Preferences and taste notes gathered from your chats. Add more by telling the assistant <em>remember: …</em> on WhatsApp.</p>
+      <p class="view-sub">Jo baatein Sheetal ke liye useful hoti hain, woh yahan save rehti hain.</p>
       <div class="grid two">
         <div class="card">
           <h3 style="margin:0 0 6px;font-size:13px">Preferences</h3>
@@ -250,6 +251,7 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
       <h2 class="view-title">Email</h2>
       <p class="view-sub" id="svcStatus">Checking configured services…</p>
       <div class="card">
+        <p class="status" id="emailAccount"></p>
         <div class="email-list" id="emailList"></div>
         <div class="link-wrap" id="emailLink" style="margin-top:10px"></div>
       </div>
@@ -267,6 +269,7 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
   <button data-view="email"><span class="ic">✉</span>Email</button>
 </nav>
 
-<script src="/app.js?v=20260918-5"></script>
+<div class="confirm-overlay" id="confirmOverlay" hidden><div class="confirm-card" role="dialog" aria-modal="true"><h3>Sheetal’s assistant</h3><p id="confirmText"></p><div class="confirm-actions"><button class="btn ghost" id="confirmCancel" type="button">Cancel</button><button class="btn" id="confirmOk" type="button">Disconnect</button></div></div></div><div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="/app.js?v=20260918-6"></script>
 </body>
 </html>

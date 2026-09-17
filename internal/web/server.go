@@ -64,10 +64,16 @@ func (s *Server) routes() {
 		writeJSON(w, http.StatusOK, map[string]any{"ok": true})
 	})
 	mux.HandleFunc("/downloads/SheetalBridge.exe", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "https://github.com/vishalgojha/sd/raw/main/dist/SheetalBridge.exe", http.StatusFound)
+		http.Redirect(w, r, "https://github.com/vishalgojha/sd/raw/main/dist/AgentV.exe", http.StatusFound)
+	})
+	mux.HandleFunc("/downloads/AgentV.exe", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "https://github.com/vishalgojha/sd/raw/main/dist/AgentV.exe", http.StatusFound)
 	})
 	mux.HandleFunc("/downloads/sheetal-bridge-linux-amd64", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "https://github.com/vishalgojha/sd/raw/main/dist/sheetal-bridge-linux-amd64", http.StatusFound)
+		http.Redirect(w, r, "https://github.com/vishalgojha/sd/raw/main/dist/agent-v-linux-amd64", http.StatusFound)
+	})
+	mux.HandleFunc("/downloads/agent-v-linux-amd64", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "https://github.com/vishalgojha/sd/raw/main/dist/agent-v-linux-amd64", http.StatusFound)
 	})
 	mux.HandleFunc("/downloads/Setup-SheetalBridge.ps1", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "https://github.com/vishalgojha/sd/raw/main/installer/windows/Setup-SheetalBridge.ps1", http.StatusFound)

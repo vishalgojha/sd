@@ -113,7 +113,8 @@ function appendMsg(role, text) {
   el.appendChild(t);
   var actions = document.createElement("div"); actions.className = "msg-actions";
   var copy = document.createElement("button"); copy.type="button"; copy.className="icon-btn"; copy.textContent="⧉"; copy.title="Copy"; copy.onclick=function(){ navigator.clipboard.writeText(text).then(function(){toast("Copied!");}); }; actions.appendChild(copy);
-  if (role === "bot") { var retry=document.createElement("button"); retry.type="button"; retry.className="icon-btn"; retry.textContent="↻"; retry.title="Retry"; retry.onclick=function(){ var rows=JSON.parse(localStorage.getItem("sdchat_history_v3")||"[]"); var last=rows.filter(function(x){return x.role==="user";}).pop(); if(last){ $("cmdInput").value=last.text; $("cmdSend").click(); } }; actions.appendChild(retry); }
+  if (role === "bot") { var retry=document.createElement("button"); retry.type="button"; retry.className="icon-btn"; retry.textContent="↻"; retry.title="Retry"; retry.setAttribute("aria-label","Retry response"); retry.onclick=function(){ var rows=JSON.parse(localStorage.getItem("sdchat_history_v3")||"[]"); var last=rows.filter(function(x){return x.role==="user";}).pop(); if(last){ $("cmdInput").value=last.text; $("cmdSend").click(); } }; actions.appendChild(retry); }
+  if (role === "user") { var edit=document.createElement("button"); edit.type="button"; edit.className="icon-btn"; edit.textContent="✎"; edit.title="Edit"; edit.setAttribute("aria-label","Edit message"); edit.onclick=function(){ $("cmdInput").value=text; $("cmdInput").focus(); toast("Ready to edit"); }; actions.appendChild(edit); }
   el.appendChild(actions);
   thread.appendChild(el);
   thread.scrollTop = thread.scrollHeight;

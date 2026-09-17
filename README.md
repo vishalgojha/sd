@@ -32,7 +32,7 @@ Every setting comes from environment variables — see `.env.example`. Key ones:
 | `SARVAM_STT_MODEL` / `SARVAM_STT_MODE` / `SARVAM_STT_LANG` | transcription model (`saaras:v3`), mode (`transcribe`, `translate`, `verbatim`, `translit`, `codemix`), language (`unknown` = auto-detect) |
 | `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET` | enables play-queue + search from WhatsApp |
 | `NANGO_SECRET_KEY` | enables Gmail read (`search email`, `check inbox`) |
-| `SDSHEETAL_AGENT_TOKEN` | shared secret for `/api/command` on the web panel |
+| `SDSHEETAL_AGENT_TOKEN` | shared secret required by write endpoints on the web panel/API |
 
 ## What the assistant understands
 
@@ -62,9 +62,11 @@ Small keywords-based intent parser (English + Hindi). Examples:
 - `GET /api/email/status`, `GET /api/email/connect`, `GET /api/email/inbox`
 - `POST /api/memory/event` – record a memory event
 
-The console is served at `/` and the dashboard data endpoints that mutate
-state (`/api/command`) require `?token=` or `Authorization: Bearer` when
-`SDSHEETAL_AGENT_TOKEN` is set.
+The console is served at `/`. When `SDSHEETAL_AGENT_TOKEN` is set, all
+state-changing API requests require it through `Authorization: Bearer <token>`
+(recommended), `X-SD-Agent-Token`, `X-SD-Token`, or `?token=<token>`. This
+includes `/api/command`, queue changes, music state/commands, memory events,
+and the Gmail connection flow.
 
 ## Docker
 

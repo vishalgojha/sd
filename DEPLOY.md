@@ -11,7 +11,9 @@ Deployed form: sd.vishalojha.me (coolify.propai.live).
 4. Keep build method as **Dockerfile** (overrides py buildpack); build command:
    `docker buildx build . -t ghcr.io/vishalgojha/sdsheetal:latest`
 5. Ensure **Persistent Storage** path = `/data`
-6. Click **Deploy** → wait ~2 min
+6. Set the healthcheck path to `/healthz`. Coolify injects its own `PORT`, so
+   the Dockerfile probes `${PORT}` rather than a hard-coded port.
+7. Click **Deploy** → wait ~2 min
 
 ## Option B — Deploy using the built-in Dockerfile
 

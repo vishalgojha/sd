@@ -3,6 +3,7 @@
 package web
 
 import (
+	"crypto/subtle"
 	"embed"
 	"encoding/json"
 	"io/fs"
@@ -89,8 +90,37 @@ func (s *Server) authed(r *http.Request) bool {
 	if s.cfg.AgentToken == "" {
 		return true
 	}
-	return r.Header.Get("X-SD-Agent-Token") == s.cfg.AgentToken ||
-		r.Header.Get("X-SD-Token") == s.cfg.AgentToken
+
+	// Support the documented Bearer and query-string forms as well as the
+	// existing explicit headers. The query form is useful for a simple browser
+	// panel; clients should prefer an Authorization header so the secret stays
+	// out of URLs and logs.
+	provided := r.Header.Get("X-SD-Agent-Token")
+	if provided == "" {
+		provided = r.Header.Get("X-SD-Token")
+	}
+	if provided == "" {
+		const bearer = "Bearer "
+		if authorization := r.Header.Get("Authorization"); strings.HasPrefix(authorization, bearer) {
+			provided = strings.TrimSpace(strings.TrimPrefix(authorization, bearer))
+		}
+	}
+	if provided == "" {
+		provided = r.URL.Query().Get("token")
+	}
+	if len(provided) != len(s.cfg.AgentToken) {
+		return false
+	}
+	return subtle.ConstantTimeCompare([]byte(provided), []byte(s.cfg.AgentToken)) == 1
+}
+
+func (s *Server) requireAuth(w http.ResponseWriter, r *http.Request) bool {
+	if s.authed(r) {
+		return true
+	}
+	w.Header().Set("WWW-Authenticate", `Bearer realm="sdsheetal"`)
+	writeJSON(w, http.StatusUnauthorized, map[string]any{"ok": false, "error": "valid agent token required"})
+	return false
 }
 
 func writeJSON(w http.ResponseWriter, code int, payload any) {
@@ -158,6 +188,9 @@ func (s *Server) command(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusMethodNotAllowed, map[string]any{"error": "use POST"})
 		return
 	}
+	if !s.requireAuth(w, r) {
+		return
+	}
 	var body struct {
 		Message string `json:"message"`
 	}
@@ -204,6 +237,9 @@ func (s *Server) queue(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		writeJSON(w, http.StatusOK, map[string]any{"queue": s.store.Queue()})
 	case http.MethodPost:
+		if !s.requireAuth(w, r) {
+			return
+		}
 		var body struct {
 			Query string `json:"query"`
 		}
@@ -218,6 +254,9 @@ func (s *Server) queue(w http.ResponseWriter, r *http.Request) {
 func (s *Server) queueNext(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, map[string]any{"error": "use POST"})
+		return
+	}
+	if !s.requireAuth(w, r) {
 		return
 	}
 	q := s.store.Queue()
@@ -240,6 +279,9 @@ func (s *Server) queueNext(w http.ResponseWriter, r *http.Request) {
 func (s *Server) queueRemove(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, map[string]any{"error": "use POST"})
+		return
+	}
+	if !s.requireAuth(w, r) {
 		return
 	}
 	var body struct {
@@ -275,6 +317,9 @@ func (s *Server) emailStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) emailConnect(w http.ResponseWriter, r *http.Request) {
+	if !s.requireAuth(w, r) {
+		return
+	}
 	if !s.gmail.Enabled() {
 		writeJSON(w, http.StatusServiceUnavailable, map[string]any{"ok": false, "error": "Gmail integration is not configured"})
 		return
@@ -311,6 +356,9 @@ func (s *Server) musicState(w http.ResponseWriter, r *http.Request) {
 		_ = s.store.ReadJSONFile("music-state.json", &data)
 		writeJSON(w, http.StatusOK, data)
 	case http.MethodPost:
+		if !s.requireAuth(w, r) {
+			return
+		}
 		var body map[string]any
 		_ = json.NewDecoder(r.Body).Decode(&body)
 		body["updated_at"] = time.Now().UTC().Format(time.RFC3339)
@@ -328,6 +376,9 @@ func (s *Server) musicCommand(w http.ResponseWriter, r *http.Request) {
 		_ = s.store.ReadJSONFile("music-command.json", &data)
 		writeJSON(w, http.StatusOK, map[string]any{"command": data})
 	case http.MethodPost:
+		if !s.requireAuth(w, r) {
+			return
+		}
 		var body map[string]any
 		_ = json.NewDecoder(r.Body).Decode(&body)
 		body["id"] = store.NewID("music")
@@ -342,6 +393,9 @@ func (s *Server) musicCommand(w http.ResponseWriter, r *http.Request) {
 func (s *Server) memoryEvent(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, map[string]any{"error": "use POST"})
+		return
+	}
+	if !s.requireAuth(w, r) {
 		return
 	}
 	var body struct {

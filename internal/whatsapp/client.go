@@ -295,6 +295,12 @@ func (c *Client) onMessage(evt *events.Message) {
 	log.Printf("whatsmeow: message from %s: %q", jid.User, text)
 
 	client := c.raw()
+	if reply, ok := c.groupQuery(text); ok {
+		resp, err := client.SendMessage(context.Background(), jid, textMessage(reply))
+		if err == nil { c.rememberSent(resp.ID) }
+		c.store.RecordMemory("conversation", "", "assistant: "+reply)
+		return
+	}
 	reply := c.agent.Run(text)
 	if reply.Text == "" {
 		return
@@ -308,6 +314,24 @@ func (c *Client) onMessage(evt *events.Message) {
 	if c.cfg.VoiceReplies || c.cfg.ReplyVoiceNotes {
 		go c.sendVoiceNote(jid, reply.Text)
 	}
+}
+
+func (c *Client) groupQuery(text string) (string, bool) {
+	lower := strings.ToLower(strings.TrimSpace(text))
+	if !strings.Contains(lower, "group") || !(strings.Contains(lower, "how many") || strings.Contains(lower, "list") || strings.Contains(lower, "which")) {
+		return "", false
+	}
+	client := c.raw()
+	if client == nil || !client.IsConnected() { return "WhatsApp is still connecting; I’ll check your groups once it is online.", true }
+	groups, err := client.GetJoinedGroups(context.Background())
+	if err != nil { log.Printf("whatsmeow: group lookup failed: %v", err); return "I couldn’t load your WhatsApp groups just now. Please try again.", true }
+	if strings.Contains(lower, "how many") { return fmt.Sprintf("You’re currently in %d WhatsApp group(s).", len(groups)), true }
+	if len(groups) == 0 { return "You aren’t currently in any WhatsApp groups.", true }
+	limit := len(groups); if limit > 20 { limit = 20 }
+	lines := []string{fmt.Sprintf("You’re in %d WhatsApp group(s):", len(groups))}
+	for _, group := range groups[:limit] { if group != nil && strings.TrimSpace(group.Name) != "" { lines = append(lines, "• "+group.Name) } }
+	if len(groups) > limit { lines = append(lines, fmt.Sprintf("…and %d more.", len(groups)-limit)) }
+	return strings.Join(lines, "\n"), true
 }
 
 // handleVoiceNote downloads an incoming audio/PTT message, transcribes it via

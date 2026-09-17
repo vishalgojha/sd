@@ -2,17 +2,17 @@
 set -euo pipefail
 
 SERVER="${SHEETAL_SERVER:-https://sd.vishalojha.me}"
-BASE="${XDG_CONFIG_HOME:-$HOME/.config}/sheetal-bridge"
-BIN="$HOME/.local/bin/sheetal-bridge"
+BASE="${XDG_CONFIG_HOME:-$HOME/.config}/agent-v"
+BIN="$HOME/.local/bin/agent-v"
 mkdir -p "$BASE" "$HOME/.local/bin" "$HOME/.config/systemd/user"
-read -r -p "Paste your Sheetal bridge token (leave blank if not enabled): " TOKEN
-curl -fL "$SERVER/downloads/sheetal-bridge-linux-amd64" -o "$BIN"
+read -r -p "Paste your Agent V token (leave blank if not enabled): " TOKEN
+curl -fL "$SERVER/downloads/agent-v-linux-amd64" -o "$BIN"
 chmod 700 "$BIN"
 printf '{"server":"%s","token":"%s","device":"linux-laptop"}\n' "$SERVER" "$TOKEN" > "$BASE/config.json"
 chmod 600 "$BASE/config.json"
-cat > "$HOME/.config/systemd/user/sheetal-bridge.service" <<EOF
+cat > "$HOME/.config/systemd/user/agent-v.service" <<EOF
 [Unit]
-Description=Sheetal local browser bridge
+Description=Agent V local browser control
 After=network-online.target
 
 [Service]
@@ -24,5 +24,5 @@ RestartSec=3
 WantedBy=default.target
 EOF
 systemctl --user daemon-reload
-systemctl --user enable --now sheetal-bridge.service
-echo "Sheetal Bridge is installed and running."
+systemctl --user enable --now agent-v.service
+echo "Agent V is installed and running."

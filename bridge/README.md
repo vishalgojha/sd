@@ -1,6 +1,6 @@
-# Sheetal Bridge
+# Agent V local control
 
-The bridge is a small outbound-polling executable for the owner's laptop. It
+Agent V is a small outbound-polling executable for the owner's laptop. It
 supports Linux for development/testing and has a polished Windows installer
 under `installer/windows` for the eventual single user. It cross-compiles to
 Windows (`GOOS=windows GOARCH=amd64`).

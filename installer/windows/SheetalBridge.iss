@@ -1,9 +1,9 @@
 [Setup]
-AppName=Sheetal Bridge
+AppName=Agent V
 AppVersion=1.0.0
-DefaultDirName={autopf}\Sheetal Bridge
-DefaultGroupName=Sheetal Bridge
-OutputBaseFilename=SheetalBridgeSetup
+DefaultDirName={autopf}\Agent V
+DefaultGroupName=Agent V
+OutputBaseFilename=AgentVSetup
 Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=lowest
@@ -17,4 +17,4 @@ Source: "Setup-SheetalBridge.ps1"; DestDir: "{app}"; Flags: ignoreversion
 Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File \"{app}\Setup-SheetalBridge.ps1\" -ExePath \"{app}\SheetalBridge.exe\""; Flags: waituntilterminated
 
 [UninstallRun]
-Filename: "schtasks.exe"; Parameters: "/Delete /TN \"Sheetal Bridge\" /F"; Flags: runhidden
+Filename: "schtasks.exe"; Parameters: "/Delete /TN \"Agent V\" /F"; Flags: runhidden

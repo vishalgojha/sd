@@ -1,4 +1,4 @@
-# Sheetal Bridge for Windows
+# Agent V for Windows
 
 Build `dist/SheetalBridge.exe`, install Inno Setup, and compile
 `SheetalBridge.iss` to produce `SheetalBridgeSetup.exe`. The installer runs a

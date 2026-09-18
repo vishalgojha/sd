@@ -162,14 +162,6 @@ func (a *Agent) Run(message string) Reply {
 
 	a.store.RecordMemory("conversation", "", raw)
 
-	// Let the configured conversational agent decide what this turn means.
-	// The local handlers below are a resilience layer for outages and for
-	// deployments whose hosted agent has not yet been given the tool schema;
-	// they are deliberately not the primary experience.
-	if aiText := a.aiReply(raw); aiText != "" {
-		return Reply{Text: aiText, Tool: "ai_chat"}
-	}
-
 	if matchesAny(text, []string{"help", "commands", "what can you", "how do you work", "show commands", "menu", "मदद"}) {
 		return a.Help()
 	}
@@ -195,7 +187,7 @@ func (a *Agent) Run(message string) Reply {
 		return reply
 	}
 	if isBrowserIntent(text) {
-		return Reply{Text: "I can do that on your computer once Agent V is running. No browser action was performed yet.", Tool: "browser_executor_offline"}
+		return Reply{Text: "I can’t perform that computer action yet because the Agent V bridge is not connected.", Tool: "browser_executor_offline"}
 	}
 	if reply, ok := a.handleMusic(raw, text); ok {
 		return reply

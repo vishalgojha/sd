@@ -209,7 +209,25 @@ function setupNewChat() {
   });
   $("historyList").addEventListener("click", function(e) {
     var toggle = e.target.closest("[data-menu-toggle]");
-    if (toggle) { var menu = toggle.closest(".history-menu"); document.querySelectorAll(".history-menu.open").forEach(function(m) { if (m !== menu) m.classList.remove("open"); }); menu.classList.toggle("open"); return; }
+    if (toggle) {
+      var menu = toggle.closest(".history-menu");
+      document.querySelectorAll(".history-menu.open").forEach(function(m) {
+        if (m !== menu) { m.classList.remove("open"); m.querySelector(".history-menu-list").style.cssText = ""; }
+      });
+      var opening = !menu.classList.contains("open");
+      menu.classList.toggle("open", opening);
+      var list = menu.querySelector(".history-menu-list");
+      if (opening) {
+        var rect = toggle.getBoundingClientRect();
+        var width = 110;
+        var left = Math.max(8, Math.min(window.innerWidth - width - 8, rect.right - width));
+        var top = rect.bottom + 4;
+        if (top + 70 > window.innerHeight) top = Math.max(8, rect.top - 74);
+        list.style.left = left + "px";
+        list.style.top = top + "px";
+      } else list.style.cssText = "";
+      return;
+    }
     var action = e.target.closest("[data-chat-action]");
     if (action) {
       var session = chatSessions.find(function(s) { return s.id === action.dataset.chatId; });
@@ -228,7 +246,7 @@ function setupNewChat() {
     var item = e.target.closest("[data-chat-id]");
     if (item) switchChat(item.dataset.chatId);
   });
-  document.addEventListener("click", function(e) { if (!e.target.closest(".history-menu")) document.querySelectorAll(".history-menu.open").forEach(function(m) { m.classList.remove("open"); }); });
+  document.addEventListener("click", function(e) { if (!e.target.closest(".history-menu")) document.querySelectorAll(".history-menu.open").forEach(function(m) { m.classList.remove("open"); m.querySelector(".history-menu-list").style.cssText = ""; }); });
   $("historySearch").addEventListener("input", function() {
     var query = this.value.trim().toLowerCase();
     document.querySelectorAll("#historyList [data-chat-id]").forEach(function(item) {

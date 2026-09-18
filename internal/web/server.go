@@ -6,6 +6,7 @@ import (
 	"crypto/subtle"
 	"embed"
 	"encoding/json"
+	"fmt"
 	"io/fs"
 	"net/http"
 	"strconv"
@@ -328,9 +329,38 @@ func (s *Server) command(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, map[string]any{"ok": false, "error": "message required"})
 		return
 	}
-	reply := s.agent.Run(body.Message)
+	var reply assistant.Reply
+	if action, params, ok := computerAction(body.Message); ok {
+		if _, err := s.store.EnqueueBridge("laptop", action, params); err != nil {
+			reply = assistant.Reply{Text: "I understood that, but I could not queue the computer action: " + err.Error(), Tool: "computer_queue_error"}
+		} else {
+			reply = assistant.Reply{Text: computerActionReply(action, params), Tool: "computer_action"}
+		}
+	} else {
+		reply = s.agent.Run(body.Message)
+	}
 	s.store.RecordMemory("conversation", "", "assistant: "+reply.Text)
 	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "reply": reply.Text, "tool": reply.Tool})
+}
+
+func computerAction(message string) (string, map[string]any, bool) {
+	text := strings.ToLower(strings.TrimSpace(message))
+	if (strings.Contains(text, "mic") || strings.Contains(text, "microphone")) && (strings.Contains(text, "open") || strings.Contains(text, "find") || strings.Contains(text, "setting")) {
+		return "open_url", map[string]any{"url": "chrome://settings/content/microphone"}, true
+	}
+	for _, app := range []string{"chrome", "spotify", "firefox"} {
+		if strings.Contains(text, "open "+app) || strings.Contains(text, "launch "+app) || strings.Contains(text, "start "+app) {
+			return "open_app", map[string]any{"name": app}, true
+		}
+	}
+	return "", nil, false
+}
+
+func computerActionReply(action string, params map[string]any) string {
+	if action == "open_url" {
+		return "Opening the microphone settings on your computer now."
+	}
+	return "Opening " + fmt.Sprint(params["name"]) + " on your computer now."
 }
 
 // --- dashboard & radio -------------------------------------------------

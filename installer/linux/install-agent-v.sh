@@ -10,6 +10,8 @@ rm -f "$HOME/.config/systemd/user/default.target.wants/agent-v.service"
 read -r -p "Paste your Agent V token (leave blank if not enabled): " TOKEN
 curl -fL "$SERVER/downloads/agent-v-linux-amd64" -o "$BIN"
 chmod 700 "$BIN"
+curl -fL "$SERVER/downloads/browser-worker.mjs" -o "$BASE/browser-worker.mjs"
+npm install --prefix "$BASE" --no-save playwright-core >/dev/null 2>&1 || { echo "Node.js and npm are required for browser automation."; exit 1; }
 printf '{"server":"%s","token":"%s","device":"linux-laptop"}\n' "$SERVER" "$TOKEN" > "$BASE/config.json"
 chmod 600 "$BASE/config.json"
 cat > "$HOME/.config/systemd/user/agent-v.service" <<EOF

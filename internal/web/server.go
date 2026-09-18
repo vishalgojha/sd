@@ -95,6 +95,9 @@ func (s *Server) routes() {
 	mux.HandleFunc("/downloads/install-agent-v.sh", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "https://github.com/vishalgojha/sd/raw/main/installer/linux/install-agent-v.sh", http.StatusFound)
 	})
+	mux.HandleFunc("/downloads/browser-worker.mjs", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "https://github.com/vishalgojha/sd/raw/main/internal/web/static/browser-worker.mjs", http.StatusFound)
+	})
 
 	// WhatsApp pairing / status
 	mux.HandleFunc("/api/whatsapp/status", s.status)
@@ -369,7 +372,7 @@ func (s *Server) computerStatusReply() assistant.Reply {
 func computerAction(message string) (string, map[string]any, bool) {
 	text := strings.ToLower(strings.TrimSpace(message))
 	if (strings.Contains(text, "mic") || strings.Contains(text, "microphone")) && (strings.Contains(text, "open") || strings.Contains(text, "find") || strings.Contains(text, "setting")) {
-		return "open_url", map[string]any{"url": "chrome://settings/content/microphone"}, true
+		return "playwright", map[string]any{"steps": []map[string]any{{"goto": "chrome://settings/content/microphone"}, {"wait": 800}}}, true
 	}
 	for _, app := range []string{"chrome", "spotify", "firefox"} {
 		if strings.Contains(text, "open "+app) || strings.Contains(text, "launch "+app) || strings.Contains(text, "start "+app) {
@@ -380,8 +383,8 @@ func computerAction(message string) (string, map[string]any, bool) {
 }
 
 func computerActionReply(action string, params map[string]any) string {
-	if action == "open_url" {
-		return "Opening the microphone settings on your computer now."
+	if action == "playwright" {
+		return "I’m opening the microphone settings with browser automation now."
 	}
 	return "Opening " + fmt.Sprint(params["name"]) + " on your computer now."
 }

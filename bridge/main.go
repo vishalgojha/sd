@@ -131,6 +131,8 @@ func run(action string, p map[string]any) (string, string) {
 		} else { err = launchLinuxApp([]string{n}, "") }
 		if err != nil { return "failed", err.Error() }
 		return "done", "launched " + n
+	case "playwright":
+		return runPlaywright(p)
 	case "type_text":
 		t := s("text")
 		if runtime.GOOS == "linux" {
@@ -148,6 +150,21 @@ func run(action string, p map[string]any) (string, string) {
 	default:
 		return "failed", "unsupported action: " + action
 	}
+}
+
+func runPlaywright(p map[string]any) (string, string) {
+	steps, ok := p["steps"]
+	if !ok { return "failed", "playwright steps required" }
+	b, err := json.Marshal(steps)
+	if err != nil { return "failed", "invalid playwright steps: " + err.Error() }
+	worker := filepath.Join(filepath.Dir(configFile()), "browser-worker.mjs")
+	if _, err := os.Stat(worker); err != nil { return "failed", "Playwright worker is not installed; rerun the Agent V installer" }
+	out, err := exec.Command("node", worker, string(b)).CombinedOutput()
+	if err != nil { return "failed", strings.TrimSpace(string(out)) }
+	var result struct { OK bool `json:"ok"`; Result string `json:"result"`; Error string `json:"error"` }
+	if err := json.Unmarshal(out, &result); err != nil { return "failed", strings.TrimSpace(string(out)) }
+	if !result.OK { return "failed", result.Error }
+	return "done", result.Result
 }
 
 func launchLinuxApp(names []string, arg string) error {

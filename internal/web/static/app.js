@@ -129,7 +129,7 @@ function createChat(withWelcome) {
 function switchChat(id) {
   var session = chatSessions.find(function(s) { return s.id === id; }); if (!session) return;
   activeChatId = id; $("thread").replaceChildren();
-  (session.messages || []).forEach(function(row) { appendMsg(row.role === "user" ? "user" : "bot", row.text || "", {persist:false, time:row.time}); });
+  (session.messages || []).filter(function(row) { return !(row.role === "bot" && /I'm not fully sure what you want yet/i.test(row.text || "")); }).forEach(function(row) { appendMsg(row.role === "user" ? "user" : "bot", row.text || "", {persist:false, time:row.time}); });
   renderChatHistory();
 }
 

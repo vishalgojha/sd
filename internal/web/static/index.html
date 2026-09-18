@@ -94,7 +94,7 @@ h2.view-title{margin:0 0 6px;font-size:22px;letter-spacing:-.5px}
 .thread{display:flex;flex-direction:column;gap:10px;padding:4px 4px;max-height:none;min-height:0;overflow-y:auto;margin-bottom:14px;flex:1}
 .msg{max-width:65%;padding:10px 13px;border-radius:16px;font-size:13.5px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word;position:relative}
 .msg .t{display:block;margin-top:5px;font-size:9.5px;color:var(--muted)}
-.msg-actions{display:flex;gap:4px;margin-top:5px;opacity:0;transition:opacity .15s}.msg:hover .msg-actions,.msg:focus-within .msg-actions{opacity:1}.msg-actions .icon-btn{width:25px;height:22px;padding:0;font-size:12px;background:transparent;color:var(--muted)}.msg.user .msg-actions{justify-content:flex-end}.msg-actions .icon-btn:hover{color:var(--ink);border-color:var(--muted)}
+.msg-actions{display:flex;gap:4px;position:absolute;right:8px;bottom:4px;opacity:0;transition:opacity .15s;z-index:2}.msg:hover .msg-actions,.msg:focus-within .msg-actions{opacity:1}.msg-actions .icon-btn{width:25px;height:22px;padding:0;font-size:12px;background:transparent;color:var(--muted)}.msg.user .msg-actions{justify-content:flex-end}.msg-actions .icon-btn:hover{color:var(--ink);border-color:var(--muted)}
 .msg.bot{align-self:flex-start;background:#f4ede6;border-bottom-left-radius:5px;border:1px solid #eee2d6}
 .msg.user{align-self:flex-end;background:linear-gradient(145deg,#ff9e70,#ed644a);color:#fff;border-bottom-right-radius:5px}
 .msg.user .t{color:rgba(255,255,255,.8)}

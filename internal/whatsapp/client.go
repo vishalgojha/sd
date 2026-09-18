@@ -423,13 +423,16 @@ func extFromMIME(mime string) string {
 	}
 }
 
-// allowed checks the configured owner number (if any).
+// allowed checks the configured approved numbers. An empty allowlist is
+// intentionally deny-by-default: the paired account's self-chat is handled
+// separately by onMessage, and no other contact should receive an automatic
+// reply until the operator explicitly approves a number.
 func (c *Client) allowed(jid types.JID) bool {
 	owners := strings.FieldsFunc(c.cfg.Owner, func(r rune) bool {
 		return r == ',' || r == ';' || r == ' ' || r == '\n' || r == '\t'
 	})
 	if len(owners) == 0 {
-		return true
+		return false
 	}
 	number := normalizeNumber(jid.User)
 	for _, owner := range owners {

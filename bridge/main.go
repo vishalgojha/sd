@@ -67,8 +67,8 @@ func main() {
 	if *device == "laptop" && stored.Device != "" {
 		*device = stored.Device
 	}
-	if *server == "" || *token == "" {
-		fmt.Fprintln(os.Stderr, "set SHEETAL_SERVER and SHEETAL_BRIDGE_TOKEN")
+	if *server == "" {
+		fmt.Fprintln(os.Stderr, "set SHEETAL_SERVER")
 		os.Exit(2)
 	}
 	client := &http.Client{Timeout: 35 * time.Second}
@@ -77,7 +77,7 @@ func main() {
 			Job *job `json:"job"`
 		}
 		req, _ := http.NewRequest("POST", strings.TrimRight(*server, "/")+"/api/bridge/next?device_id="+url.QueryEscape(*device), nil)
-		req.Header.Set("Authorization", "Bearer "+*token)
+		if *token != "" { req.Header.Set("Authorization", "Bearer "+*token) }
 		resp, err := client.Do(req)
 		if err == nil {
 			_ = json.NewDecoder(resp.Body).Decode(&out)
@@ -87,7 +87,7 @@ func main() {
 			status, result := run(out.Job.Action, out.Job.Parameters)
 			body, _ := json.Marshal(map[string]any{"id": out.Job.ID, "status": status, "result": result})
 			r, _ := http.NewRequest("POST", strings.TrimRight(*server, "/")+"/api/bridge/result", bytes.NewReader(body))
-			r.Header.Set("Authorization", "Bearer "+*token)
+			if *token != "" { r.Header.Set("Authorization", "Bearer "+*token) }
 			r.Header.Set("Content-Type", "application/json")
 			rr, _ := client.Do(r)
 			if rr != nil {

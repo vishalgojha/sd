@@ -301,7 +301,7 @@ func (c *Client) onMessage(evt *events.Message) {
 		c.store.RecordMemory("conversation", "", "assistant: "+reply)
 		return
 	}
-	reply := c.agent.Run(text)
+	reply := c.runAgent(text)
 	if reply.Text == "" {
 		return
 	}
@@ -314,6 +314,35 @@ func (c *Client) onMessage(evt *events.Message) {
 	if c.cfg.VoiceReplies || c.cfg.ReplyVoiceNotes {
 		go c.sendVoiceNote(jid, reply.Text)
 	}
+}
+
+// runAgent handles computer requests locally so the hosted chat model cannot
+// turn a queued action into an unverified claim.
+func (c *Client) runAgent(text string) assistant.Reply {
+	lower := strings.ToLower(strings.TrimSpace(text))
+	if lower == "done?" || lower == "did you do it" || lower == "did it work" || lower == "is it done" || lower == "did you open it" {
+		jobs := c.store.BridgeJobs()
+		for i := len(jobs) - 1; i >= 0; i-- {
+			switch jobs[i].Status {
+			case "done": return assistant.Reply{Text: "Yes — the computer confirmed: " + jobs[i].Result, Tool: "computer_status"}
+			case "failed": return assistant.Reply{Text: "No. The computer could not complete it: " + jobs[i].Result, Tool: "computer_status"}
+			case "queued", "running": return assistant.Reply{Text: "Not yet — the computer action is still " + jobs[i].Status + ".", Tool: "computer_status"}
+			}
+		}
+		return assistant.Reply{Text: "No recent computer action is available to confirm.", Tool: "computer_status"}
+	}
+	if action, params, ok := whatsappComputerAction(lower); ok {
+		if _, err := c.store.EnqueueBridge("", action, params); err != nil { return assistant.Reply{Text: "I understood that, but I could not queue the computer action: " + err.Error(), Tool: "computer_queue_error"} }
+		if action == "open_url" { return assistant.Reply{Text: "Opening the microphone settings on your computer now.", Tool: "computer_action"} }
+		return assistant.Reply{Text: "Opening " + params["name"].(string) + " on your computer now.", Tool: "computer_action"}
+	}
+	return c.agent.Run(text)
+}
+
+func whatsappComputerAction(text string) (string, map[string]any, bool) {
+	if (strings.Contains(text, "mic") || strings.Contains(text, "microphone")) && (strings.Contains(text, "open") || strings.Contains(text, "find") || strings.Contains(text, "setting")) { return "open_url", map[string]any{"url": "chrome://settings/content/microphone"}, true }
+	for _, app := range []string{"chrome", "spotify", "firefox"} { if strings.Contains(text, "open "+app) || strings.Contains(text, "launch "+app) || strings.Contains(text, "start "+app) { return "open_app", map[string]any{"name": app}, true } }
+	return "", nil, false
 }
 
 func (c *Client) groupQuery(text string) (string, bool) {
@@ -364,7 +393,7 @@ func (c *Client) handleVoiceNote(evt *events.Message, jid types.JID) {
 	}
 	log.Printf("whatsmeow: voice note from %s transcribed: %q", jid.User, text)
 
-	reply := c.agent.Run(text)
+	reply := c.runAgent(text)
 	if reply.Text == "" {
 		return
 	}

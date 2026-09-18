@@ -115,22 +115,21 @@ func run(action string, p map[string]any) (string, string) {
 		if u == "" {
 			return "failed", "url required"
 		}
-		if runtime.GOOS == "windows" {
-			_ = exec.Command("cmd", "/c", "start", "", u).Start()
-		} else {
-			_ = exec.Command("xdg-open", u).Start()
-		}
+		var err error
+		if runtime.GOOS == "windows" { err = exec.Command("cmd", "/c", "start", "", u).Start()
+		} else if strings.HasPrefix(u, "chrome://") { err = launchLinuxApp([]string{"google-chrome", "google-chrome-stable", "chromium", "chromium-browser"}, u)
+		} else { err = exec.Command("xdg-open", u).Start() }
+		if err != nil { return "failed", err.Error() }
 		return "done", "opened " + u
 	case "open_app":
 		n := s("name")
 		if n == "" {
 			n = s("app")
 		}
-		if runtime.GOOS == "windows" {
-			_ = exec.Command("cmd", "/c", "start", "", n).Start()
-		} else {
-			_ = exec.Command(n).Start()
-		}
+		var err error
+		if runtime.GOOS == "windows" { err = exec.Command("cmd", "/c", "start", "", n).Start()
+		} else { err = launchLinuxApp([]string{n}, "") }
+		if err != nil { return "failed", err.Error() }
 		return "done", "launched " + n
 	case "type_text":
 		t := s("text")
@@ -149,4 +148,15 @@ func run(action string, p map[string]any) (string, string) {
 	default:
 		return "failed", "unsupported action: " + action
 	}
+}
+
+func launchLinuxApp(names []string, arg string) error {
+	for _, name := range names {
+		path, err := exec.LookPath(name)
+		if err != nil { continue }
+		args := []string{}
+		if arg != "" { args = append(args, arg) }
+		return exec.Command(path, args...).Start()
+	}
+	return fmt.Errorf("application not found: %s", strings.Join(names, ", "))
 }

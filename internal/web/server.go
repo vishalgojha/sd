@@ -330,8 +330,10 @@ func (s *Server) command(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var reply assistant.Reply
-	if action, params, ok := computerAction(body.Message); ok {
-		if _, err := s.store.EnqueueBridge("laptop", action, params); err != nil {
+	if isCompletionQuestion(body.Message) {
+		reply = s.computerStatusReply()
+	} else if action, params, ok := computerAction(body.Message); ok {
+		if _, err := s.store.EnqueueBridge("", action, params); err != nil {
 			reply = assistant.Reply{Text: "I understood that, but I could not queue the computer action: " + err.Error(), Tool: "computer_queue_error"}
 		} else {
 			reply = assistant.Reply{Text: computerActionReply(action, params), Tool: "computer_action"}
@@ -341,6 +343,27 @@ func (s *Server) command(w http.ResponseWriter, r *http.Request) {
 	}
 	s.store.RecordMemory("conversation", "", "assistant: "+reply.Text)
 	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "reply": reply.Text, "tool": reply.Tool})
+}
+
+func isCompletionQuestion(message string) bool {
+	text := strings.ToLower(strings.TrimSpace(message))
+	return text == "done?" || text == "did you do it" || text == "did it work" || text == "is it done" || text == "did you open it"
+}
+
+func (s *Server) computerStatusReply() assistant.Reply {
+	jobs := s.store.BridgeJobs()
+	for i := len(jobs) - 1; i >= 0; i-- {
+		job := jobs[i]
+		switch job.Status {
+		case "done":
+			return assistant.Reply{Text: "Yes — the computer confirmed: " + job.Result, Tool: "computer_status"}
+		case "failed":
+			return assistant.Reply{Text: "No. The computer could not complete it: " + job.Result, Tool: "computer_status"}
+		case "queued", "running":
+			return assistant.Reply{Text: "Not yet — the computer action is still " + job.Status + ".", Tool: "computer_status"}
+		}
+	}
+	return assistant.Reply{Text: "No recent computer action is available to confirm.", Tool: "computer_status"}
 }
 
 func computerAction(message string) (string, map[string]any, bool) {

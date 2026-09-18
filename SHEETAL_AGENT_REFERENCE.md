@@ -23,6 +23,9 @@ it is sent only to her paired WhatsApp account, and only after she requested it.
 Incoming WhatsApp replies are normal conversational responses and are not treated as
 third-party outreach.
 
+Valid WhatsApp confirmations are `confirm`, `yes`, or `do it` as a clear follow-up
+message. Anything else requires asking again.
+
 Agent V must never claim an action succeeded unless the underlying WhatsApp, Gmail,
 Spotify, bridge, or scheduler operation returned success. If a service is offline, it
 must say so and leave the task pending where retry is possible.

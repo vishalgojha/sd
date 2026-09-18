@@ -1,12 +1,26 @@
 import { chromium } from "playwright-core";
+import { spawn } from "node:child_process";
 
 const raw = process.argv[2];
 const steps = JSON.parse(raw || "[]");
 const profile = process.env.AGENT_V_BROWSER_PROFILE || `${process.env.HOME}/.config/agent-v/browser-profile`;
 const executable = process.env.AGENT_V_CHROME || "/usr/bin/google-chrome";
 let browser;
+const port = Number(process.env.AGENT_V_CDP_PORT || 9222);
+async function cdpReady() {
+  try { const response = await fetch(`http://127.0.0.1:${port}/json/version`); return response.ok; } catch { return false; }
+}
+async function waitForCDP() {
+  for (let i = 0; i < 40; i++) { if (await cdpReady()) return; await new Promise(resolve => setTimeout(resolve, 250)); }
+  throw new Error("Chrome remote debugging did not become available");
+}
 try {
-  browser = await chromium.launchPersistentContext(profile, { headless: false, executablePath: executable });
+  if (!(await cdpReady())) {
+    const child = spawn(executable, [`--remote-debugging-port=${port}`, `--user-data-dir=${profile}`], { detached: true, stdio: "ignore" });
+    child.unref();
+    await waitForCDP();
+  }
+  browser = await chromium.connectOverCDP(`http://127.0.0.1:${port}`);
   const page = browser.pages()[0] || await browser.newPage();
   let result = "Browser steps completed";
   for (const step of steps) {
@@ -24,5 +38,7 @@ try {
   console.log(JSON.stringify({ ok: false, error: error?.message || String(error) }));
   process.exitCode = 1;
 } finally {
-  if (browser) await browser.close();
+  // The Chrome process is intentionally left open for the user. Exiting the
+  // worker disconnects Playwright without closing the visible browser.
+  process.exit(process.exitCode || 0);
 }

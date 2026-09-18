@@ -333,14 +333,14 @@ func (c *Client) runAgent(text string) assistant.Reply {
 	}
 	if action, params, ok := whatsappComputerAction(lower); ok {
 		if _, err := c.store.EnqueueBridge("", action, params); err != nil { return assistant.Reply{Text: "I understood that, but I could not queue the computer action: " + err.Error(), Tool: "computer_queue_error"} }
-		if action == "open_url" { return assistant.Reply{Text: "Opening the microphone settings on your computer now.", Tool: "computer_action"} }
+		if action == "playwright" { return assistant.Reply{Text: "I’m opening the microphone settings with browser automation now.", Tool: "computer_action"} }
 		return assistant.Reply{Text: "Opening " + params["name"].(string) + " on your computer now.", Tool: "computer_action"}
 	}
 	return c.agent.Run(text)
 }
 
 func whatsappComputerAction(text string) (string, map[string]any, bool) {
-	if (strings.Contains(text, "mic") || strings.Contains(text, "microphone")) && (strings.Contains(text, "open") || strings.Contains(text, "find") || strings.Contains(text, "setting")) { return "open_url", map[string]any{"url": "chrome://settings/content/microphone"}, true }
+	if (strings.Contains(text, "mic") || strings.Contains(text, "microphone")) && (strings.Contains(text, "open") || strings.Contains(text, "find") || strings.Contains(text, "setting")) { return "playwright", map[string]any{"steps": []map[string]any{{"goto": "chrome://settings/content/microphone"}, {"wait": 800}}}, true }
 	for _, app := range []string{"chrome", "spotify", "firefox"} { if strings.Contains(text, "open "+app) || strings.Contains(text, "launch "+app) || strings.Contains(text, "start "+app) { return "open_app", map[string]any{"name": app}, true } }
 	return "", nil, false
 }

@@ -60,7 +60,7 @@ h2.view-title{margin:0 0 6px;font-size:22px;letter-spacing:-.5px}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:10px;font-size:11px;font-weight:700;border:1px solid var(--line);background:#fffdfb;color:#6c645c}
 .chip b{width:7px;height:7px;border-radius:50%;background:#b8afa8}
 .chip.ok{color:#17744e;border-color:#c9ecdd;background:#effaf5}.chip.ok b{background:#21a26e}
-.cmd-row{display:flex;gap:8px;margin-top:4px}
+.cmd-row{display:flex;align-items:flex-end;gap:8px;margin-top:4px}
 .cmd-row input,.cmd-row textarea{flex:1;min-width:0;border:1px solid var(--line);border-radius:13px;padding:12px 13px;outline:0;font:inherit;font-size:13px;background:#0d1116;color:var(--ink)}
 .cmd-row textarea{min-height:76px;resize:vertical;line-height:1.45}
 .cmd-row input:focus{border-color:var(--orange)}
@@ -159,6 +159,8 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
 @media(max-width:900px) and (min-width:721px){.chat-layout{grid-template-columns:210px minmax(0,1fr)}}
 @media(max-width:720px){.chat-layout{display:block;min-height:0}.chat-history{margin-bottom:10px;min-height:0}.history-list{flex-direction:row;overflow-x:auto;overflow-y:hidden;padding-bottom:2px}.history-item{flex:0 0 170px}.history-empty{padding:8px}.chat-card{height:calc(100dvh - 248px)!important;min-height:calc(100dvh - 248px)!important}}
 @media(max-width:720px){.history-row{flex:0 0 190px}.history-menu-trigger{background:#171a20;border-color:var(--line)}}
+.view#view-chat .cmd-row .btn{height:44px;min-width:68px;padding:0 14px}
+@media(max-width:720px){.view#view-chat .cmd-row .btn{height:42px;min-width:62px;padding:0 12px}}
 @media(max-width:720px){
   .view#view-chat .cmd-row{align-items:flex-end;gap:8px}
   .view#view-chat .cmd-row textarea{min-height:54px;height:54px;padding:10px 11px;font-size:12px}
@@ -215,7 +217,7 @@ body{background-image:radial-gradient(1100px 520px at 82% -12%,rgba(216,222,232,
 
     <!-- CHAT -->
     <section class="view" id="view-chat">
-      <div class="eyebrow">COMMAND CONSOLE</div>
+      <div class="eyebrow">CHAT WITH AGENT V</div>
       <div style="display:flex;align-items:center;gap:10px"><h2 class="view-title" style="flex:1">Chat</h2><button id="newChatBtn" class="btn ghost" type="button">NEW TASK</button></div>
       <p class="view-sub">Tell Agent V what you need. It understands English, Hindi, and Hinglish.</p>
       <div class="chat-layout">

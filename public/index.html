@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Hi Sheetal.</title>
+    <meta name="description" content="A birthday briefing, unnecessarily elaborate." />
+    <meta name="theme-color" content="#0a0a0d" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🎂</text></svg>" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="glow" aria-hidden="true"></div>
+
+    <main class="shell">
+      <header class="hero" id="hero">
+        <p class="hero__eyebrow"><span class="dot"></span>Birthday briefing · confidential</p>
+        <h1 class="hero__hi">Hi <span data-her>Sheetal</span><span class="hero__period">.</span></h1>
+        <p class="hero__sub" data-open-line></p>
+      </header>
+
+      <section
+        class="chat"
+        id="chat"
+        role="log"
+        aria-live="polite"
+        aria-relevant="additions"
+        aria-label="Conversation with the birthday coordinator"
+      ></section>
+
+      <div class="composer" id="composer" hidden>
+        <div class="composer__inner">
+          <label class="sr-only" for="input">Reply to the coordinator</label>
+          <input
+            id="input"
+            type="text"
+            autocomplete="off"
+            enterkeyhint="send"
+            placeholder="Ask it something…"
+          />
+          <button id="send" type="button" class="send" aria-label="Send">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <path d="M4 12h13M12 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="composer__meta">
+          <span id="status" class="status"></span>
+          <button id="reset" type="button" class="linkish">start over</button>
+        </div>
+      </div>
+    </main>
+
+    <script src="./config.generated.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

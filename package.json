@@ -1,0 +1,16 @@
+{
+  "name": "bday-coordinator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A single-page AI birthday coordinator that asks Sheetal out.",
+  "type": "module",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs",
+    "config": "node -e \"import('./shared/config.mjs').then(async m => (await import('node:fs/promises')).writeFile('public/config.generated.js', 'window.CONFIG = ' + JSON.stringify(m.CONFIG, null, 2) + ';\\n'))\""
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

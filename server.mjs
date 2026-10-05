@@ -8,7 +8,6 @@ const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(ROOT, "public");
 const GENERATED = path.join(PUBLIC_DIR, "config.generated.js");
 const PORT = Number(process.env.PORT || 3000);
-const HOST = process.env.HOST || "0.0.0.0";
 
 const API_KEY = process.env.LLM_API_KEY || "";
 const BASE_URL = (process.env.LLM_BASE_URL || "https://api.openai.com/v1").replace(/\/+$/, "");
@@ -257,8 +256,10 @@ const server = createServer(async (req, res) => {
 
 const notifyPhone = await generateConfigFile();
 
-server.listen(PORT, HOST, () => {
-  console.log(`birthday coordinator → http://localhost:${PORT}`);
+server.listen(PORT, () => {
+  const addr = server.address();
+  const port = typeof addr === "object" && addr ? addr.port : PORT;
+  console.log(`birthday coordinator → listening on port ${port} (all interfaces)`);
   console.log(
     API_KEY
       ? `llm: ${MODEL} via ${BASE_URL}`

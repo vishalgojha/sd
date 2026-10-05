@@ -50,8 +50,10 @@ When she taps Friday or Saturday, the last step is a WhatsApp deep link to
 number is injected from the environment at boot, not committed — this repo is
 public.
 
-The server also reads `PORT` / `HOST` from the environment, which is what Coolify
-injects, and exposes `GET /healthz` for probes.
+The server reads `PORT` from the environment, which is what Coolify injects, and
+binds every interface — deliberately ignoring `HOST`, because Coolify's healthcheck
+probes the container over loopback and a platform-injected `HOST` value is not an
+address the process can bind. It exposes `GET /healthz` for probes.
 
 ## Deploy
 

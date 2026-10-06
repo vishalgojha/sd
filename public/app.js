@@ -82,7 +82,7 @@
           him +
           " has given me far more information than any reasonable AI coordinator should have to " +
           "process.\n\nI have several concerns already.\n\nThe first is that he asked me to tell " +
-          "you, rather than telling you himself.\n\nI have asked him why. He has not answered.",
+          "you, rather than telling you himself.",
       },
       {
         t: "There is, however, one small complication.\n\nHe would prefer not to celebrate alone.",
@@ -95,10 +95,13 @@
       },
       {
         t:
+          "He asked me to make one thing completely clear:\n\nthis is not a date.\n\n" +
+          "He asked an AI to say it for him.",
+      },
+      {
+        t:
           "There is also a scheduling complication.\n\nHis birthday falls during Navratri.\n\n" +
-          "Which means:\n\nPuja. Garba. No drinking.\n\nHe has asked me whether two people " +
-          "drinking milk at 9pm on a Tuesday counts as Navratri compliance.\n\n" +
-          "I told him to ask his pandit.",
+          "Which means:\n\nPuja. Garba. No drinking.",
       },
       {
         t:
@@ -128,8 +131,8 @@
         t:
           "So, in a spectacular display of lateral thinking...\n\n" +
           him +
-          " has created a legitimate work requirement.\n\nHe asked me to prepare an agenda. " +
-          "It is two pages long. Both pages are the word “balcony”.",
+          " has created a legitimate work requirement.\n\nI want it on record that I did not " +
+          "suggest this. I would not have suggested this.",
       },
       {
         t:
@@ -145,8 +148,7 @@
       {
         t:
           "The scope of work is extremely straightforward:\n\nDrinks.\nFood.\nApartment discussion.\n" +
-          "Dancing, if circumstances allow.\n\nAnd hopefully a good evening.\n\n" +
-          "He is on this page right now.\n\nI cannot confirm this. He has refreshed it 40 times.",
+          "Dancing, if circumstances allow.\n\nAnd hopefully a good evening.",
       },
       {
         t:

@@ -78,7 +78,8 @@
         t:
           him +
           " has given me far more information than any reasonable AI coordinator should have to " +
-          "process. I have several concerns already.",
+          "process.\n\nI have several concerns already.\n\nThe first is that he asked me to tell " +
+          "you, rather than telling you himself.\n\nI have asked him why. He has not answered.",
       },
       {
         t: "There is, however, one small complication.\n\nHe would prefer not to celebrate alone.",

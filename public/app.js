@@ -155,7 +155,9 @@
         t:
           "Despite everything I've just told you...\n\n" +
           him +
-          " genuinely thinks you'll have a good time.\n\nWhich is surprisingly optimistic of him.",
+          " genuinely thinks you'll have a good time.\n\n" +
+          "For a man who could not tell you this himself, " +
+          "he is surprisingly certain about how it will go.",
       },
       {
         t:

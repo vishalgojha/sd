@@ -30,6 +30,10 @@ export const CONFIG = {
 
   notify: {
     note: "Tapping this opens WhatsApp with the message ready to send. Nothing goes out until you press send.",
+    message:
+      "Hi Vishal, you should be glad I accepted your invite. Lucky you! Now tell me, do you even have a plan? 😂",
+    declineMessage:
+      "Hi Vishal, well played 😂 The coordinator almost got me, but I'll have to pass this time.",
   },
 
   voice: {

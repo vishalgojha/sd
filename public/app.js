@@ -155,6 +155,7 @@
             "humans manage.",
           label: "End briefing",
         },
+        { kind: "notify" },
       ];
     }
 
@@ -184,11 +185,10 @@
   }
 
   function notifyMessage() {
-    return (
-      "The coordinator has completed the briefing. " +
-      notifyDay() +
-      " works for me. See you for the birthday operation."
-    );
+    if (state.answer === "busy") {
+      return notify.declineMessage || "Hi " + him + ", well played. I'll have to pass this time.";
+    }
+    return notify.message || "Hi " + him + ", you should be glad I accepted the invite.";
   }
 
   function notifyHref() {

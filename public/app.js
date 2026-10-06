@@ -30,15 +30,15 @@
 
   /* ------------------------------------------------------------------ script */
 
-  function knowsQuestion() {
+  function openingStep() {
     return {
       t:
-        "One administrative question first.\n\nHas " +
+        "I was hoping this would be a simple birthday invite.\n\nApparently, " +
         him +
-        " already told you about any of this?",
+        " had other plans.\n\nBefore I go on: has he already told you about any of this?",
       q: "knows",
       choices: [
-        { id: "yes", label: "Yes, I know" },
+        { id: "yes", label: "Yes, he told me" },
         { id: "no", label: "No idea" },
       ],
     };
@@ -172,7 +172,7 @@
 
   function prefix() {
     var base = basePrefix();
-    var head = [base[0], knowsQuestion()];
+    var head = [openingStep()];
     if (state.knows === "yes") head = head.concat(knowsBranch());
     return head.concat(base.slice(1));
   }
@@ -392,7 +392,10 @@
 
     if (step.choices) {
       if (step.t) renderText(step);
-      var r = el("div", "row row--agent row--interactive");
+      var answered = step.q === "knows" ? state.knows : state.answer;
+
+      if (!answered) {
+        var r = el("div", "row row--agent row--interactive");
       r.appendChild(agentTag());
       var box = el("div", "choices");
       box.style.marginLeft = "0.3rem";
@@ -412,8 +415,10 @@
         });
         box.appendChild(b);
       });
-      r.appendChild(box);
-      chat.appendChild(r);
+        r.appendChild(box);
+        chat.appendChild(r);
+      }
+
       if (step.foot) {
         var f = el("div", "row row--agent");
         f.appendChild(el("div", "bubble bubble--aside", step.foot));
@@ -460,7 +465,6 @@
     var s = script();
     for (var i = 0; i < state.step && i < s.length; i++) {
       var step = s[i];
-      if (step.choices && (step.q === "knows" ? state.knows : state.answer)) continue;
       renderStep(step);
     }
 

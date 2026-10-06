@@ -54,7 +54,7 @@
         t:
           "So naturally, instead of simply asking someone out, he built an AI agent. " +
           "To be clear, I did not suggest this. I was informed.",
-        redact: "alone in his own apartment with a cake, no candles, no witnesses",
+        redact: "five years of birthdays handled with a group photo and a thumbs-up",
       },
 
       { brief: "two" },

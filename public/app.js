@@ -36,15 +36,11 @@
       },
       {
         t:
-          "I should probably warn you upfront:\n\n" +
           him +
           " has given me far more information than any reasonable AI coordinator should have to " +
-          "process.",
-      },
-      {
-        t:
-          "My professional recommendation was straightforward:\n\nGo out.\nHave some drinks.\n" +
-          "Eat something good.\nCelebrate like a normal human being.",
+          "process. I have several concerns already.\n\nMy professional recommendation, despite " +
+          "them, was straightforward:\n\nGo out.\nHave some drinks.\nEat something good.\n" +
+          "Celebrate like a normal human being.",
       },
       {
         t: "There is, however, one small complication.\n\nHe would prefer not to celebrate alone.",

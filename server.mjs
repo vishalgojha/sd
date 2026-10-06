@@ -16,6 +16,19 @@ const TEMPERATURE = Number(process.env.LLM_TEMPERATURE ?? 0.9);
 const MAX_TOKENS = Number(process.env.LLM_MAX_TOKENS || 400);
 const CHAT_PATH = process.env.LLM_CHAT_PATH || "/chat/completions";
 const TIMEOUT_MS = Number(process.env.LLM_TIMEOUT_MS || 20000);
+
+/* Some providers need a second credential header on top of the bearer token.
+   Sarvam, for example, requires both Authorization and api-subscription-key.
+   Set LLM_EXTRA_HEADERS to a JSON object of header name -> value. */
+const EXTRA_HEADERS = (() => {
+  try {
+    const parsed = JSON.parse(process.env.LLM_EXTRA_HEADERS || "{}");
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  } catch {
+    console.error("[llm] LLM_EXTRA_HEADERS is not valid JSON, ignoring it");
+    return {};
+  }
+})();
 const RATE_LIMIT = Number(process.env.RATE_LIMIT || 30);
 const RATE_WINDOW_MS = Number(process.env.RATE_WINDOW_MS || 600000);
 
@@ -126,6 +139,7 @@ async function askModel({ message, stage, answered, transcript }) {
       headers: {
         "content-type": "application/json",
         authorization: `Bearer ${API_KEY}`,
+        ...EXTRA_HEADERS,
       },
       body: JSON.stringify({
         model: MODEL,

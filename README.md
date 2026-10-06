@@ -45,6 +45,20 @@ LLM_MODEL=gpt-4o-mini
 Any OpenAI-compatible endpoint works — Groq, OpenRouter, Sarvam, Together, Ollama.
 Point `LLM_BASE_URL` and `LLM_CHAT_PATH` at it.
 
+Sarvam needs a second credential header on top of the bearer token, so it also
+needs `LLM_EXTRA_HEADERS`. Without it the endpoint answers 403 and the page
+silently falls back to canned replies:
+
+```
+LLM_BASE_URL=https://api.sarvam.ai/v1
+LLM_CHAT_PATH=/chat/completions
+LLM_MODEL=sarvam-105b
+LLM_EXTRA_HEADERS={"api-subscription-key":"sk_..."}
+```
+
+Check what the running container actually has with `GET /healthz` — it reports
+`llm: true/false` and the model. If that says `false`, chat is running offline.
+
 When she taps Friday or Saturday, the last step is a WhatsApp deep link to
 `NOTIFY_WHATSAPP` with her chosen day pre-filled, so she just hits send. That
 number is injected from the environment at boot, not committed — this repo is

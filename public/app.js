@@ -109,10 +109,7 @@
           "I have no objections to this part.",
       },
       {
-        t:
-          "So, naturally, the plan is:\n\nDrinks.\nFood.\nDancing, if circumstances allow.\n\n" +
-          "He has asked you about these dates four times already.\n\nYou have not answered. " +
-          "He has noticed.",
+        t: "So, naturally, the plan is:\n\nDrinks.\nFood.\nDancing, if circumstances allow.",
       },
       {
         t:

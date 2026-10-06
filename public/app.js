@@ -58,7 +58,9 @@
       {
         t:
           "There is also a scheduling complication.\n\nHis birthday falls during Navratri.\n\n" +
-          "Which means:\n\nPuja. Garba. No drinking.",
+          "Which means:\n\nPuja. Garba. No drinking.\n\nHe has asked me whether two people " +
+          "drinking milk at 9pm on a Tuesday counts as Navratri compliance.\n\n" +
+          "I told him to ask his pandit.",
       },
       {
         t:
@@ -68,7 +70,12 @@
           "days early.\n\nBirthday celebration first.\nThen he goes clean for Navratri.\n\n" +
           "I have no objections to this part.",
       },
-      { t: "So, naturally, the plan is:\n\nDrinks.\nFood.\nDancing, if circumstances allow." },
+      {
+        t:
+          "So, naturally, the plan is:\n\nDrinks.\nFood.\nDancing, if circumstances allow.\n\n" +
+          "He has asked me four times what time he should arrive. Each time he gave a different " +
+          "time. I have recorded all four and will use none of them.",
+      },
       {
         t:
           "I strongly advise against watching " +
@@ -86,7 +93,8 @@
         t:
           "So, in a spectacular display of lateral thinking...\n\n" +
           him +
-          " has created a legitimate work requirement.",
+          " has created a legitimate work requirement.\n\nHe asked me to prepare an agenda. " +
+          "It is two pages long. Both pages are the word “balcony”.",
       },
       {
         t:
@@ -102,7 +110,8 @@
       {
         t:
           "The scope of work is extremely straightforward:\n\nDrinks.\nFood.\nApartment discussion.\n" +
-          "Dancing, if circumstances allow.\n\nAnd hopefully a good evening.",
+          "Dancing, if circumstances allow.\n\nAnd hopefully a good evening.\n\n" +
+          "He is on this page right now.\n\nI cannot confirm this. He has refreshed it 40 times.",
       },
       {
         t:

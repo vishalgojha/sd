@@ -110,6 +110,49 @@ body {
   display: none;
 }
 
+/* ---------- progress ---------- */
+
+.progress {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.75rem 0;
+  background: rgba(10, 10, 13, 0.94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.progress[hidden] {
+  display: none;
+}
+
+.progress__track {
+  flex: 1;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  overflow: hidden;
+}
+
+.progress__fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+  transition: width 0.45s ease;
+}
+
+.progress__label {
+  font-size: 0.82rem;
+  color: var(--muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
 /* ---------- chat ---------- */
 
 .chat {
@@ -333,6 +376,15 @@ body {
   color: var(--muted);
   background: transparent;
   border-color: var(--line);
+}
+
+.choice--next {
+  color: var(--gold-soft);
+  background: rgba(227, 184, 102, 0.24);
+  border-color: rgba(227, 184, 102, 0.7);
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
 }
 
 .choice--cta {

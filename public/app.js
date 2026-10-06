@@ -22,6 +22,9 @@
   var sendBtn = document.getElementById("send");
   var statusEl = document.getElementById("status");
   var resetBtn = document.getElementById("reset");
+  var progressEl = document.getElementById("progress");
+  var progressFill = document.getElementById("progressFill");
+  var progressLabel = document.getElementById("progressLabel");
 
   var openedRedacts = {};
   var state = load() || { step: 0, answer: null, knows: null, log: [] };
@@ -195,7 +198,6 @@
           t:
             "For what it's worth...\n\nThank you for actually answering.\n\nThat's more than most " +
             "humans manage.",
-          label: "End briefing",
         },
         { kind: "notify" },
       ];
@@ -278,6 +280,16 @@
     if (cls) n.className = cls;
     if (text != null) n.textContent = text;
     return n;
+  }
+
+  function updateProgress() {
+    if (!progressEl) return;
+    var total = prefix().length || 1;
+    var done = state.step;
+    var shown = Math.min(done, total);
+    progressEl.hidden = state.step === 0;
+    progressFill.style.width = Math.round(Math.min(1, done / total) * 100) + "%";
+    progressLabel.textContent = shown + " of " + total;
   }
 
   function scrollDown() {
@@ -366,7 +378,7 @@
       var href = notifyHref();
 
       if (href) {
-        var a = el("a", "choice choice--cta", "Tell " + him + " →");
+        var a = el("a", "choice choice--cta", "Send this to Vishal");
         a.href = href;
         a.target = "_blank";
         a.rel = "noopener";
@@ -378,7 +390,7 @@
         wrap.appendChild(el("div", "bubble bubble--aside", "No number configured, so the coordinator has nowhere to send this."));
       }
 
-      var poke = el("button", "choice choice--quiet", "say something to the coordinator first");
+      var poke = el("button", "choice choice--quiet", "Talk to her first");
       poke.type = "button";
       poke.addEventListener("click", function () {
         showComposer();
@@ -450,7 +462,7 @@
     var row = el("div", "row row--agent row--interactive");
     var wrap = el("div", "choices");
     wrap.style.marginLeft = "0.3rem";
-    var cont = el("button", "choice choice--quiet", (step && step.label) || "continue →");
+    var cont = el("button", "choice choice--next", (step && step.label) || "Next");
     cont.type = "button";
     cont.addEventListener("click", advance);
     wrap.appendChild(cont);
@@ -485,6 +497,7 @@
     }
 
     if (state.step >= choicesIndex()) showComposer();
+    updateProgress();
     scrollDown();
   }
 
@@ -494,6 +507,7 @@
       typing.remove();
       renderStep(step);
       hero.classList.add("hero--retired");
+      updateProgress();
       scrollDown();
 
       if (!step.choices && step.kind !== "notify") {

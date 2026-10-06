@@ -3,6 +3,9 @@ export const CONFIG = {
   him: "Vishal",
   yearsUncelebrated: 5,
 
+  openLine:
+    "There was no rhyme or reason for Vishal to involve me in this, but here I am, still doing it.",
+
   when: {
     friday: "Friday",
     saturday: "Saturday",

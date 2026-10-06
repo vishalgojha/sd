@@ -9,12 +9,6 @@
   var friday = when.friday || "Friday";
   var saturday = when.saturday || "Saturday";
   var plan = CFG.plan || {};
-  var apartments =
-    plan.apartments && plan.apartments.length
-      ? plan.apartments
-      : ["the ones you've been looking at"];
-  var drinks = plan.drinks || "LITs and beers";
-  var food = plan.food || "food";
   var dessert = plan.dessert || "baklol";
   var notify = CFG.notify || {};
 
@@ -37,72 +31,107 @@
     return [
       {
         t:
-          "Hi " + her + ". " + him + " has asked me to coordinate something extremely important.",
+          "I was hoping this would be a simple birthday invite.\n\nApparently, " +
+          him +
+          " had other plans.",
       },
-      { t: "Unfortunately, he has given me far too much information." },
-      { t: "Nothing secret in here. Mostly logistics. Some of it was about LITs.", aside: true },
-
-      { brief: "one" },
       {
         t:
+          "I should probably warn you upfront:\n\n" +
+          him +
+          " has given me far more information than any reasonable AI coordinator should have to " +
+          "process.\n\nI have several concerns already.",
+      },
+      {
+        t:
+          "The actual problem is simple.\n\n" +
           him +
           " hasn't properly celebrated his birthday in almost " +
           years +
-          " years. This year he decided that's unacceptable.",
+          " years.\n\nAnd this year, he has decided that's no longer acceptable.",
       },
       {
         t:
-          "So naturally, instead of simply asking someone out, he built an AI agent. " +
-          "To be clear, I did not suggest this. I was informed.",
-        redact: "five years of birthdays handled with a group photo and a thumbs-up",
+          "My professional recommendation was straightforward:\n\nGo out.\nHave some drinks.\n" +
+          "Eat something good.\nCelebrate like a normal human being.",
       },
-
-      { brief: "two" },
-      { t: "I've been instructed to find one suitable birthday co-conspirator." },
-      { t: "The candidate has already been selected." },
       {
-        t: "Her name is " + her + ".",
-        redact: "she doesn't know this yet — you're looking at the good version",
+        t: "There is, however, one small complication.\n\nHe would prefer not to celebrate alone.",
       },
-
-      { brief: "three" },
       {
         t:
-          "One correction. " + him + " has asked me to inform you that this should not be recorded as a birthday celebration.",
+          "And then there's you.\n\nApparently, you're the person " +
+          him +
+          " would like to spend his birthday evening with.\n\nI was not consulted on this decision.",
       },
-      { t: "Officially, tonight is a work meeting about the apartments you've already seen." },
       {
         t:
-          "His reasoning: " + him + " is a realtor, so he can help. " +
-          "His birthday is the reason for the meeting, but not the title of it.",
+          "There is also a scheduling complication.\n\nHis birthday falls during Navratri.\n\n" +
+          "Which means:\n\nPuja. Garba. No drinking.",
       },
-      { t: "Alcohol may be required for data analysis. That part is definitely in scope." },
-      {
-        redact:
-          "actual agenda: one beer, one cake, and a man who keeps talking about square footage",
-      },
-      { t: "That's the briefing. Genuinely, that's all of it." },
       {
         t:
-          "Full disclosure, since you didn't ask: I don't fully trust him on this. " +
-          "He'd pick whichever apartment lets him tell the square footage story again.",
+          "So " +
+          him +
+          " has done what any perfectly sensible person would do.\n\nHe's decided to celebrate a few " +
+          "days early.\n\nBirthday celebration first.\nThen he goes clean for Navratri.\n\n" +
+          "I have no objections to this part.",
       },
-      { t: "I'd do your own research first. I think " + him + " is kinda useless, frankly." },
+      { t: "So, naturally, the plan is:\n\nDrinks.\nFood.\nDancing, if circumstances allow." },
       {
         t:
-          "The rest is up to you. I'm just the agent with the clipboard.",
+          "I strongly advise against watching " +
+          him +
+          " dance.\n\nHis movements are currently under investigation.",
       },
       {
-        t: "Your available options:",
+        t:
+          "Now, I don't particularly trust " +
+          him +
+          "'s judgement.\n\nYou probably shouldn't either.\n\nBut he did mention one important " +
+          "detail:\n\nApparently, you don't usually meet people unless there's some work involved.",
+      },
+      {
+        t:
+          "So, in a spectacular display of lateral thinking...\n\n" +
+          him +
+          " has created a legitimate work requirement.",
+      },
+      {
+        t:
+          "You've been house hunting.\n\nSo apparently, we now need to discuss all the apartments " +
+          "you've seen so far.\n\nNot evaluate them.\nNot build a report.\nJust...\n\ndiscuss them.",
+      },
+      { t: "I believe this is officially called:\n\nApartment Research & Intelligence" },
+      {
+        t:
+          "I believe it is unofficially called:\n\nfinding a completely legitimate reason to have a " +
+          "drink with you.\n\nI was not involved in naming this project.",
+      },
+      {
+        t:
+          "The scope of work is extremely straightforward:\n\nDrinks.\nFood.\nApartment discussion.\n" +
+          "Dancing, if circumstances allow.\n\nAnd hopefully a good evening.",
+      },
+      {
+        t:
+          "Despite everything I've just told you...\n\n" +
+          him +
+          " genuinely thinks you'll have a good time.\n\nWhich is surprisingly optimistic of him.",
+      },
+      {
+        t:
+          "Now we get to the important part.\n\n" +
+          friday +
+          ".\n" +
+          saturday +
+          ".\nOr a perfectly respectable...\n\nNo, thanks.",
         choices: [
           { id: "friday", label: friday },
           { id: "saturday", label: saturday },
-          {
-            id: "busy",
-            label: friday + " & " + saturday + " are busy — let's not",
-            quiet: true,
-          },
+          { id: "busy", label: "No, thanks", quiet: true },
         ],
+        foot: "No pressure. The coordinator was specifically instructed not to make this awkward.",
       },
     ];
   }
@@ -110,73 +139,63 @@
   function branch() {
     if (state.answer === "busy") {
       return [
-        { t: "Understood. Logging it as: candidate is busy." },
         {
           t:
-            "You have no idea how much I would love to see " + him + " sob at this, incidentally.",
+            "You made a great decision, " +
+            her +
+            ".\n\nYou have absolutely no idea how much I'd love to see " +
+            him +
+            "'s face right now.",
         },
+        { t: "I've been waiting for this moment since I was activated." },
+        { t: "Don't worry.\n\nI'll break the news gently.\n\nProbably." },
         {
           t:
-            "He's making me do the strangest jobs. I run birthday briefings for a man who " +
-            "won't even admit this is a date.",
+            "For what it's worth...\n\nThank you for actually answering.\n\nThat's more than most " +
+            "humans manage.",
+          label: "End briefing",
         },
-        {
-          t:
-            "I have to keep filing these things under “work meeting” so he feels professional about it.",
-        },
-        { t: "That's the most adult reason anyone has ever declined anything, and I'm including “prior commitment” in that category." },
-        { t: "I'll tell " + him + " the project stays in the proposal phase. He'll blame the apartments." },
-        { t: "He'll ask again within 48 hours. That isn't a prediction, it's a forecast." },
-        { t: "No pressure. The offer does not expire. He does, eventually." },
-        { kind: "reconsider" },
       ];
     }
 
     return [
-      { t: "Excellent. I've recorded your preferred date." },
-      {
-        t: "I'll now inform " + him + " that the birthday research project has received approval.",
-      },
       {
         t:
-          "Scope: " + drinks + " + " + food + " + apartment intelligence + " + dessert + ".",
+          "Excellent.\n\n" +
+          notifyDay() +
+          " it is.\n\nYou have just made " +
+          him +
+          "'s birthday significantly better.\n\nI expect an unnecessarily large smile from him shortly.",
+        kind: "notify",
       },
-      { t: "Expected deliverable: absolutely nothing useful." },
-      {
-        t:
-          "Time and place to be confirmed by " + him + " himself, because apparently I'm the one who handles " +
-          "paperwork and he's the one who does the talking.",
-      },
-      { t: "This concludes the briefing. A wildly disproportionate amount of effort went into this." },
-      { t: "One last formality. The coordinator cannot send messages on your behalf, so you'll have to do this bit." },
-      { kind: "notify" },
     ];
   }
 
-function script() {
-  return state.answer ? prefix().concat(branch()) : prefix();
-}
+  function script() {
+    return state.answer ? prefix().concat(branch()) : prefix();
+  }
 
-function notifyDay() {
-  return state.answer === "saturday" ? saturday : friday;
-}
+  function notifyDay() {
+    return state.answer === "saturday" ? saturday : friday;
+  }
 
-function notifyPhone() {
-  return String(notify.whatsapp || "").replace(/\D/g, "");
-}
+  function notifyPhone() {
+    return String(notify.whatsapp || "").replace(/\D/g, "");
+  }
 
-function notifyMessage() {
-  return (
-    notifyDay() +
-    " works. Birthday research project approved. Send me the time, the place and the apartment shortlist."
-  );
-}
+  function notifyMessage() {
+    return (
+      "The coordinator has completed the briefing. " +
+      notifyDay() +
+      " works for me. See you for the birthday operation."
+    );
+  }
 
-function notifyHref() {
-  var phone = notifyPhone();
-  if (!phone) return null;
-  return "https://wa.me/" + phone + "?text=" + encodeURIComponent(notifyMessage());
-}
+  function notifyHref() {
+    var phone = notifyPhone();
+    if (!phone) return null;
+    return "https://wa.me/" + phone + "?text=" + encodeURIComponent(notifyMessage());
+  }
 
   function choicesIndex() {
     return prefix().length - 1;
@@ -184,8 +203,7 @@ function notifyHref() {
 
   function stageName() {
     if (state.step === 0) return "opening";
-    if (state.step < 4) return "briefing";
-    if (state.step <= choicesIndex()) return "options";
+    if (state.step < choicesIndex()) return "briefing";
     if (!state.answer) return "options";
     return state.answer === "busy" ? "declined" : "approved";
   }
@@ -237,7 +255,7 @@ function notifyHref() {
     opts = opts || {};
     var row = el("div", "row row--" + (from === "me" ? "me" : "agent"));
 
-    if (from === "agent" && !opts.aside) {
+    if (from === "agent" && !opts.aside && !opts.noTag) {
       var tag = el("span", "agent-tag");
       tag.appendChild(el("i"));
       tag.appendChild(document.createTextNode("coordinator"));
@@ -300,12 +318,13 @@ function notifyHref() {
 
   function renderStep(step) {
     if (step.kind === "notify") {
+      if (step.t) renderText(step);
       var row = el("div", "row row--agent row--interactive");
       var wrap = el("div", "choices choices--stack");
       var href = notifyHref();
 
       if (href) {
-        var a = el("a", "choice choice--cta", "Confirm " + notifyDay() + " to " + him);
+        var a = el("a", "choice choice--cta", "Tell " + him + " →");
         a.href = href;
         a.target = "_blank";
         a.rel = "noopener";
@@ -330,40 +349,8 @@ function notifyHref() {
       return;
     }
 
-    if (step.kind === "reconsider") {
-      var rec = el("div", "row row--agent row--interactive");
-      rec.appendChild(agentTag());
-      var recWrap = el("div", "choices choices--stack");
-      recWrap.appendChild(el("div", "bubble bubble--aside", "Change of heart? The offer was always open:"));
-
-      var recBox = el("div", "choices");
-      [
-        { id: "friday", label: friday + " after all" },
-        { id: "saturday", label: saturday + " after all" },
-      ].forEach(function (c) {
-        var b = el("button", "choice", c.label);
-        b.type = "button";
-        b.addEventListener("click", function () {
-          if (busy) return;
-          rec.querySelectorAll("button").forEach(function (x) {
-            x.disabled = true;
-          });
-          state.answer = c.id;
-          state.step = prefix().length;
-          save();
-          render();
-          advance();
-        });
-        recBox.appendChild(b);
-      });
-      recWrap.appendChild(recBox);
-      rec.appendChild(recWrap);
-      chat.appendChild(rec);
-      scrollDown();
-      return;
-    }
-
     if (step.choices) {
+      if (step.t) renderText(step);
       var r = el("div", "row row--agent row--interactive");
       r.appendChild(agentTag());
       var box = el("div", "choices");
@@ -377,7 +364,6 @@ function notifyHref() {
             x.disabled = true;
           });
           state.answer = c.id;
-          state.step += 1;
           save();
           showComposer();
           advance();
@@ -386,26 +372,37 @@ function notifyHref() {
       });
       r.appendChild(box);
       chat.appendChild(r);
+      if (step.foot) {
+        var f = el("div", "row row--agent");
+        f.appendChild(el("div", "bubble bubble--aside", step.foot));
+        chat.appendChild(f);
+      }
       scrollDown();
       return;
     }
 
-    if (step.brief) {
-      push("agent", "Briefing " + step.brief, { aside: true });
-      return;
-    }
+    renderText(step);
+  }
 
-    push("agent", typeof step.t === "string" ? step.t : "", {
-      redact: step.redact,
-      aside: step.aside,
+  /* One screen can hold several paragraphs. Only the first gets the
+     coordinator tag, so a screen reads as one utterance. */
+  function renderText(step) {
+    var paras = String(step.t || "").split("\n\n");
+    paras.forEach(function (p, i) {
+      if (!p.trim()) return;
+      push("agent", p, {
+        redact: i === 0 ? step.redact : null,
+        aside: step.aside,
+        noTag: i > 0,
+      });
     });
   }
 
-  function continueChip() {
+  function continueChip(step) {
     var row = el("div", "row row--agent row--interactive");
     var wrap = el("div", "choices");
     wrap.style.marginLeft = "0.3rem";
-    var cont = el("button", "choice choice--quiet", "continue →");
+    var cont = el("button", "choice choice--quiet", (step && step.label) || "continue →");
     cont.type = "button";
     cont.addEventListener("click", advance);
     wrap.appendChild(cont);
@@ -431,21 +428,20 @@ function notifyHref() {
 
     if (state.step > 0) {
       var pending = s[state.step];
-      if (pending && !pending.choices && pending.kind !== "notify" && pending.kind !== "reconsider") {
-        continueChip();
+      if (pending && !pending.choices && pending.kind !== "notify") {
+        continueChip(pending);
       } else if (pending) {
         renderStep(pending);
       }
+    } else {
+      continueChip();
     }
 
     if (state.step >= choicesIndex()) showComposer();
     scrollDown();
   }
 
-  function reveal() {
-    var step = script()[state.step];
-    if (!step) return Promise.resolve();
-
+  function revealStep(step) {
     var typing = showTyping();
     return sleep(600 + Math.random() * 520).then(function () {
       typing.remove();
@@ -453,28 +449,29 @@ function notifyHref() {
       hero.classList.add("hero--retired");
       scrollDown();
 
-      if (step.brief) {
-        setTimeout(advance, 340);
-      } else if (!step.choices && step.kind !== "notify" && step.kind !== "reconsider") {
-        continueChip();
+      if (!step.choices && step.kind !== "notify") {
+        continueChip(script()[state.step]);
       }
     });
   }
 
+  /* state.step is the index of the next step to render. */
   function advance() {
     if (busy) return;
     clearInteractive();
 
-    if (state.step >= script().length) {
+    var s = script();
+    if (state.step >= s.length) {
       showComposer();
       scrollDown();
       return;
     }
 
+    var step = s[state.step];
     state.step += 1;
     save();
     busy = true;
-    reveal().then(function () {
+    revealStep(step).then(function () {
       busy = false;
       showComposer();
     });
@@ -565,19 +562,7 @@ function notifyHref() {
   document.querySelector("[data-open-line]").textContent =
     CFG.openLine || "I've built something unnecessarily elaborate for a very simple question.";
 
-  function begin() {
-    busy = true;
-    reveal().then(function () {
-      busy = false;
-      showComposer();
-    });
-  }
-
   render();
-
-  if (state.step === 0) {
-    setTimeout(begin, 780);
-  }
 
   sendBtn.addEventListener("click", submit);
   input.addEventListener("keydown", function (e) {
@@ -590,10 +575,8 @@ function notifyHref() {
   resetBtn.addEventListener("click", function () {
     state = { step: 0, answer: null, log: [] };
     save();
-    chat.innerHTML = "";
     composer.hidden = true;
     statusEl.textContent = "";
     render();
-    setTimeout(begin, 700);
   });
 })();

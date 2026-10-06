@@ -359,6 +359,19 @@ body {
   text-underline-offset: 3px;
 }
 
+/* ---------- footer ---------- */
+
+.foot {
+  margin-top: auto;
+  padding-top: 1.6rem;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  opacity: 0.62;
+  text-align: center;
+}
+
 /* ---------- composer ---------- */
 
 .composer {

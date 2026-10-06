@@ -8,6 +8,8 @@
   var birthday = when.birthday || "13 October";
   var friday = when.friday || "Friday";
   var saturday = when.saturday || "Saturday";
+  var fridayLabel = when.fridayDate ? friday + ", " + when.fridayDate : friday;
+  var saturdayLabel = when.saturdayDate ? saturday + ", " + when.saturdayDate : saturday;
   var plan = CFG.plan || {};
   var dessert = plan.dessert || "baklol";
   var notify = CFG.notify || {};
@@ -42,9 +44,7 @@
         t:
           him +
           " has given me far more information than any reasonable AI coordinator should have to " +
-          "process. I have several concerns already.\n\nMy professional recommendation, despite " +
-          "them, was straightforward:\n\nGo out.\nHave some drinks.\nEat something good.\n" +
-          "Celebrate like a normal human being.",
+          "process. I have several concerns already.",
       },
       {
         t: "There is, however, one small complication.\n\nHe would prefer not to celebrate alone.",
@@ -118,8 +118,8 @@
           saturday +
           ".\nOr a perfectly respectable...\n\nNo, thanks.",
         choices: [
-          { id: "friday", label: friday },
-          { id: "saturday", label: saturday },
+          { id: "friday", label: fridayLabel },
+          { id: "saturday", label: saturdayLabel },
           { id: "busy", label: "No, thanks", quiet: true },
         ],
         foot: "No pressure. The coordinator was specifically instructed not to make this awkward.",

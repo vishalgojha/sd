@@ -10,7 +10,9 @@ export const CONFIG = {
   when: {
     birthday: "13 October",
     friday: "Friday",
+    fridayDate: "9 October",
     saturday: "Saturday",
+    saturdayDate: "10 October",
     window: "this weekend",
   },
 

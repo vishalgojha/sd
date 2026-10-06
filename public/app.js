@@ -5,6 +5,7 @@
   var her = CFG.her || "Sheetal";
   var him = CFG.him || "Vishal";
   var when = CFG.when || {};
+  var birthday = when.birthday || "13 October";
   var friday = when.friday || "Friday";
   var saturday = when.saturday || "Saturday";
   var plan = CFG.plan || {};
@@ -33,6 +34,9 @@
           "I was hoping this would be a simple birthday invite.\n\nApparently, " +
           him +
           " had other plans.",
+      },
+      {
+        t: "His birthday is on " + birthday + ".\n\nThat is the entire reason for this exercise.",
       },
       {
         t:

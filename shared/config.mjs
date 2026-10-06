@@ -8,6 +8,7 @@ export const CONFIG = {
     "I'm hoping you at least smile by the end of the whole exercise.",
 
   when: {
+    birthday: "13 October",
     friday: "Friday",
     saturday: "Saturday",
     window: "this weekend",

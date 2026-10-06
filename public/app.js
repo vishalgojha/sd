@@ -39,7 +39,7 @@
           "I should probably warn you upfront:\n\n" +
           him +
           " has given me far more information than any reasonable AI coordinator should have to " +
-          "process.\n\nI have several concerns already.",
+          "process.",
       },
       {
         t:

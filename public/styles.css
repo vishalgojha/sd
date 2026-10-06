@@ -74,36 +74,6 @@ body {
   transition: opacity 0.5s ease, padding 0.5s ease, transform 0.5s ease;
 }
 
-.hero__eyebrow {
-  margin: 0 0 1.1rem;
-  font-size: 0.7rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-}
-
-.dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--gold);
-  box-shadow: 0 0 0 4px rgba(227, 184, 102, 0.15);
-  animation: pulse 2.6s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.35;
-  }
-}
-
 .hero__hi {
   margin: 0;
   font-family: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;

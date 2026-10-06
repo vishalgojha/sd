@@ -190,12 +190,26 @@ async function serveStatic(req, res, urlPath) {
   }
 }
 
+function normalizeWhatsApp(raw) {
+  const digits = String(raw || "").replace(/\D/g, "");
+  if (!digits) return "";
+  const local = digits.startsWith("91") ? digits.slice(2) : digits;
+  if (local.length !== 10) {
+    console.warn(
+      `[notify] NOTIFY_WHATSAPP has ${local.length} digits after the country code, expected 10 — ` +
+        "the confirm button will be disabled rather than sending to a wrong number"
+    );
+    return "";
+  }
+  return "91" + local;
+}
+
 async function generateConfigFile() {
   const publicConfig = {
     ...CONFIG,
     notify: {
       ...(CONFIG.notify || {}),
-      whatsapp: (process.env.NOTIFY_WHATSAPP || "").replace(/\D/g, ""),
+      whatsapp: normalizeWhatsApp(process.env.NOTIFY_WHATSAPP),
     },
   };
   const body = `window.CONFIG = ${JSON.stringify(publicConfig, null, 2)};\n`;

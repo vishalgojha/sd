@@ -113,12 +113,22 @@
         { t: "Understood. Logging it as: candidate is busy." },
         {
           t:
-            "That's the most adult reason anyone has ever declined anything, and I'm including " +
-            "“prior commitment” in that category.",
+            "You have no idea how much I would love to see " + him + " sob at this, incidentally.",
         },
+        {
+          t:
+            "He's making me do the strangest jobs. I run birthday briefings for a man who " +
+            "won't even admit this is a date.",
+        },
+        {
+          t:
+            "I have to keep filing these things under “work meeting” so he feels professional about it.",
+        },
+        { t: "That's the most adult reason anyone has ever declined anything, and I'm including “prior commitment” in that category." },
         { t: "I'll tell " + him + " the project stays in the proposal phase. He'll blame the apartments." },
         { t: "He'll ask again within 48 hours. That isn't a prediction, it's a forecast." },
         { t: "No pressure. The offer does not expire. He does, eventually." },
+        { kind: "reconsider" },
       ];
     }
 
@@ -320,6 +330,39 @@ function notifyHref() {
       return;
     }
 
+    if (step.kind === "reconsider") {
+      var rec = el("div", "row row--agent row--interactive");
+      rec.appendChild(agentTag());
+      var recWrap = el("div", "choices choices--stack");
+      recWrap.appendChild(el("div", "bubble bubble--aside", "Change of heart? The offer was always open:"));
+
+      var recBox = el("div", "choices");
+      [
+        { id: "friday", label: friday + " after all" },
+        { id: "saturday", label: saturday + " after all" },
+      ].forEach(function (c) {
+        var b = el("button", "choice", c.label);
+        b.type = "button";
+        b.addEventListener("click", function () {
+          if (busy) return;
+          rec.querySelectorAll("button").forEach(function (x) {
+            x.disabled = true;
+          });
+          state.answer = c.id;
+          state.step = prefix().length;
+          save();
+          render();
+          advance();
+        });
+        recBox.appendChild(b);
+      });
+      recWrap.appendChild(recBox);
+      rec.appendChild(recWrap);
+      chat.appendChild(rec);
+      scrollDown();
+      return;
+    }
+
     if (step.choices) {
       var r = el("div", "row row--agent row--interactive");
       r.appendChild(agentTag());
@@ -388,7 +431,7 @@ function notifyHref() {
 
     if (state.step > 0) {
       var pending = s[state.step];
-      if (pending && !pending.choices && pending.kind !== "notify") {
+      if (pending && !pending.choices && pending.kind !== "notify" && pending.kind !== "reconsider") {
         continueChip();
       } else if (pending) {
         renderStep(pending);
@@ -412,7 +455,7 @@ function notifyHref() {
 
       if (step.brief) {
         setTimeout(advance, 340);
-      } else if (!step.choices && step.kind !== "notify") {
+      } else if (!step.choices && step.kind !== "notify" && step.kind !== "reconsider") {
         continueChip();
       }
     });

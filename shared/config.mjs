@@ -4,7 +4,9 @@ export const CONFIG = {
   yearsUncelebrated: 5,
 
   openLine:
-    "There was no rhyme or reason for Vishal to involve me in this, but here I am, still doing it.",
+    "There's no rhyme or reason for any of this, but actually the man does have one. " +
+    "He didn't want to make it awkward for you. So if it's nothing else, " +
+    "I'm hoping you at least smile by the end of the whole exercise.",
 
   when: {
     friday: "Friday",

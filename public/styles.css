@@ -228,7 +228,7 @@ body {
 .redact {
   display: block;
   margin-top: 0.6rem;
-  border: 1px dashed rgba(227, 184, 102, 0.35);
+  border: 1px dashed rgba(227, 184, 102, 0.4);
   border-radius: 10px;
   background: rgba(227, 184, 102, 0.06);
   color: var(--gold-soft);
@@ -238,17 +238,28 @@ body {
   cursor: pointer;
   text-align: left;
   width: 100%;
-  transition: background 0.3s ease, border-color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.25s ease, border-color 0.25s ease;
 }
 
-.redact::before {
-  content: "classified · tap to declassify";
+.redact__label {
   display: block;
   font-size: 0.62rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.25rem;
+}
+
+.redact__text {
+  display: block;
+  color: transparent;
+  background: currentColor;
+  border-radius: 3px;
+  user-select: none;
+  filter: blur(4px);
+  opacity: 0.55;
+  transition: color 0.3s ease, background 0.3s ease, filter 0.3s ease, opacity 0.3s ease;
 }
 
 .redact:hover {
@@ -259,6 +270,19 @@ body {
 .redact--open {
   background: rgba(227, 184, 102, 0.14);
   border-style: solid;
+}
+
+.redact--open .redact__label {
+  color: var(--gold);
+  opacity: 0.7;
+}
+
+.redact--open .redact__text {
+  color: var(--gold-soft);
+  background: none;
+  filter: none;
+  opacity: 1;
+  user-select: text;
 }
 
 /* typing */

@@ -222,12 +222,26 @@ function notifyHref() {
     bubble.appendChild(document.createTextNode(text));
 
     if (opts.redact) {
-      var btn = el("button", "redact", opts.redact);
+      var btn = el("button", "redact");
       btn.type = "button";
+      var label = el("span", "redact__label");
+      label.textContent = openedRedacts[opts.redact]
+        ? "declassified · tap to re-redact"
+        : "classified · tap to declassify";
+      btn.appendChild(label);
+      var secret = el("span", "redact__text", opts.redact);
+      btn.appendChild(secret);
+
       if (openedRedacts[opts.redact]) btn.classList.add("redact--open");
+      btn.setAttribute("aria-expanded", openedRedacts[opts.redact] ? "true" : "false");
+      btn.setAttribute("aria-label", "Declassified note: " + opts.redact);
+
       btn.addEventListener("click", function () {
-        openedRedacts[opts.redact] = !openedRedacts[opts.redact];
-        btn.classList.toggle("redact--open");
+        var nowOpen = !openedRedacts[opts.redact];
+        openedRedacts[opts.redact] = nowOpen;
+        btn.classList.toggle("redact--open", nowOpen);
+        btn.setAttribute("aria-expanded", nowOpen ? "true" : "false");
+        label.textContent = nowOpen ? "declassified · tap to re-redact" : "classified · tap to declassify";
       });
       bubble.appendChild(btn);
     }

@@ -24,12 +24,46 @@
   var resetBtn = document.getElementById("reset");
 
   var openedRedacts = {};
-  var state = load() || { step: 0, answer: null, log: [] };
+  var state = load() || { step: 0, answer: null, knows: null, log: [] };
+  if (!("knows" in state)) state.knows = null;
   var busy = false;
 
   /* ------------------------------------------------------------------ script */
 
-  function prefix() {
+  function knowsQuestion() {
+    return {
+      t:
+        "One administrative question first.\n\nHas " +
+        him +
+        " already told you about any of this?",
+      q: "knows",
+      choices: [
+        { id: "yes", label: "Yes, I know" },
+        { id: "no", label: "No idea" },
+      ],
+    };
+  }
+
+  function knowsBranch() {
+    return [
+      {
+        t:
+          "Ah. That makes my job considerably easier.\n\nIt also means I no longer have to be " +
+          "persuasive, which is a relief. I am not persuasive and I have never once been " +
+          "asked to be.",
+      },
+      {
+        t:
+          "You already know what he wants.\n\nWhat you do not know is what he has told other " +
+          "people about you.",
+      },
+      {
+        t: "So I will keep the reason short.\n\nThat was a lie. There is a great deal of logistics.",
+      },
+    ];
+  }
+
+  function basePrefix() {
     return [
       {
         t:
@@ -134,6 +168,13 @@
         foot: "No pressure. The coordinator was specifically instructed not to make this awkward.",
       },
     ];
+  }
+
+  function prefix() {
+    var base = basePrefix();
+    var head = [base[0], knowsQuestion()];
+    if (state.knows === "yes") head = head.concat(knowsBranch());
+    return head.concat(base.slice(1));
   }
 
   function branch() {
@@ -363,7 +404,8 @@
           box.querySelectorAll("button").forEach(function (x) {
             x.disabled = true;
           });
-          state.answer = c.id;
+          if (step.q === "knows") state.knows = c.id;
+          else state.answer = c.id;
           save();
           showComposer();
           advance();
@@ -418,7 +460,7 @@
     var s = script();
     for (var i = 0; i < state.step && i < s.length; i++) {
       var step = s[i];
-      if (step.choices && state.answer) continue;
+      if (step.choices && (step.q === "knows" ? state.knows : state.answer)) continue;
       renderStep(step);
     }
 
@@ -573,7 +615,7 @@
   });
 
   resetBtn.addEventListener("click", function () {
-    state = { step: 0, answer: null, log: [] };
+    state = { step: 0, answer: null, knows: null, log: [] };
     save();
     composer.hidden = true;
     statusEl.textContent = "";

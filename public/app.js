@@ -68,14 +68,30 @@
       { brief: "three" },
       {
         t:
-          "There is also a legitimate business component. We need to discuss the apartments you've seen so far. " +
-          "This is apparently a very important research requirement.",
+          "One correction. " + him + " has asked me to inform you that this should not be recorded as a birthday celebration.",
       },
-      { t: "The shortlist, for the record: " + apartments.join("; ") + "." },
-      { t: "Alcohol may be required for data analysis." },
-      { redact: "he will deny this in advance: “I'm not a LIT person, I just don't say no”" },
-
+      { t: "Officially, tonight is a work meeting about the apartments you've already seen." },
+      {
+        t:
+          "His reasoning: " + him + " is a realtor, so he can help. " +
+          "His birthday is the reason for the meeting, but not the title of it.",
+      },
+      { t: "Alcohol may be required for data analysis. That part is definitely in scope." },
+      {
+        redact:
+          "actual agenda: one beer, one cake, and a man who keeps talking about square footage",
+      },
       { t: "That's the briefing. Genuinely, that's all of it." },
+      {
+        t:
+          "Full disclosure, since you didn't ask: I don't fully trust him on this. " +
+          "He'd pick whichever apartment lets him tell the square footage story again.",
+      },
+      { t: "I'd do your own research first. I think " + him + " is kinda useless, frankly." },
+      {
+        t:
+          "The rest is up to you. I'm just the agent with the clipboard.",
+      },
       {
         t: "Your available options:",
         choices: [
@@ -336,7 +352,10 @@ function notifyHref() {
       return;
     }
 
-    push("agent", step.t, { redact: step.redact, aside: step.aside });
+    push("agent", typeof step.t === "string" ? step.t : "", {
+      redact: step.redact,
+      aside: step.aside,
+    });
   }
 
   function continueChip() {

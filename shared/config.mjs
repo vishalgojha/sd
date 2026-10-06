@@ -1,7 +1,6 @@
 export const CONFIG = {
   her: "Sheetal",
   him: "Vishal",
-  yearsUncelebrated: 5,
 
   openLine:
     "There's no rhyme or reason for any of this, but actually the man does have one. " +

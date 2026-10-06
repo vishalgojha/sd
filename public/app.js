@@ -4,7 +4,6 @@
   var CFG = window.CONFIG || {};
   var her = CFG.her || "Sheetal";
   var him = CFG.him || "Vishal";
-  var years = CFG.yearsUncelebrated || 5;
   var when = CFG.when || {};
   var friday = when.friday || "Friday";
   var saturday = when.saturday || "Saturday";
@@ -41,14 +40,6 @@
           him +
           " has given me far more information than any reasonable AI coordinator should have to " +
           "process.\n\nI have several concerns already.",
-      },
-      {
-        t:
-          "The actual problem is simple.\n\n" +
-          him +
-          " hasn't properly celebrated his birthday in almost " +
-          years +
-          " years.\n\nAnd this year, he has decided that's no longer acceptable.",
       },
       {
         t:

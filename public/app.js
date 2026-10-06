@@ -118,7 +118,7 @@
         t:
           "I strongly advise against watching " +
           him +
-          " dance.\n\nHis movements are currently under investigation.",
+          " dance.\n\nYou have already seen him do it.\n\nYou know exactly what I mean.",
       },
       {
         t:

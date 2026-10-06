@@ -111,8 +111,8 @@
       {
         t:
           "So, naturally, the plan is:\n\nDrinks.\nFood.\nDancing, if circumstances allow.\n\n" +
-          "He has asked me four times what time he should arrive. Each time he gave a different " +
-          "time. I have recorded all four and will use none of them.",
+          "He has asked you about these dates four times already.\n\nYou have not answered. " +
+          "He has noticed.",
       },
       {
         t:
